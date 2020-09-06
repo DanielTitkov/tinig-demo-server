@@ -7,6 +7,7 @@ import (
 )
 
 type Config struct {
+	Auth   AuthConfig
 	DB     DBConfig
 	Server ServerConfig
 }

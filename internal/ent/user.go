@@ -24,6 +24,8 @@ type User struct {
 	Username string `json:"username,omitempty"`
 	// Email holds the value of the "email" field.
 	Email string `json:"email,omitempty"`
+	// PasswordHash holds the value of the "password_hash" field.
+	PasswordHash string `json:"password_hash,omitempty"`
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -34,6 +36,7 @@ func (*User) scanValues() []interface{} {
 		&sql.NullTime{},   // update_time
 		&sql.NullString{}, // username
 		&sql.NullString{}, // email
+		&sql.NullString{}, // password_hash
 	}
 }
 
@@ -69,6 +72,11 @@ func (u *User) assignValues(values ...interface{}) error {
 	} else if value.Valid {
 		u.Email = value.String
 	}
+	if value, ok := values[4].(*sql.NullString); !ok {
+		return fmt.Errorf("unexpected type %T for field password_hash", values[4])
+	} else if value.Valid {
+		u.PasswordHash = value.String
+	}
 	return nil
 }
 
@@ -103,6 +111,8 @@ func (u *User) String() string {
 	builder.WriteString(u.Username)
 	builder.WriteString(", email=")
 	builder.WriteString(u.Email)
+	builder.WriteString(", password_hash=")
+	builder.WriteString(u.PasswordHash)
 	builder.WriteByte(')')
 	return builder.String()
 }

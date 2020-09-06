@@ -19,6 +19,8 @@ const (
 	FieldUsername = "username"
 	// FieldEmail holds the string denoting the email field in the database.
 	FieldEmail = "email"
+	// FieldPasswordHash holds the string denoting the password_hash field in the database.
+	FieldPasswordHash = "password_hash"
 
 	// Table holds the table name of the user in the database.
 	Table = "users"
@@ -31,6 +33,7 @@ var Columns = []string{
 	FieldUpdateTime,
 	FieldUsername,
 	FieldEmail,
+	FieldPasswordHash,
 }
 
 var (
@@ -40,4 +43,8 @@ var (
 	DefaultUpdateTime func() time.Time
 	// UpdateDefaultUpdateTime holds the default value on update for the update_time field.
 	UpdateDefaultUpdateTime func() time.Time
+	// UsernameValidator is a validator for the "username" field. It is called by the builders before save.
+	UsernameValidator func(string) error
+	// EmailValidator is a validator for the "email" field. It is called by the builders before save.
+	EmailValidator func(string) error
 )
