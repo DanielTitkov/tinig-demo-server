@@ -30,6 +30,21 @@ func (a *App) CreateUser(u *domain.User) error {
 	return nil
 }
 
+func (a *App) GetUser(u *domain.User) (*domain.User, error) {
+	user, err := a.db.User.
+		Query().
+		Where(user.UsernameEQ(u.Username)).
+		Only(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	return &domain.User{
+		Username: user.Username,
+		Email:    user.Email,
+	}, nil
+}
+
 func (a *App) ValidateUserPassword(u *domain.User) (bool, error) {
 	user, err := a.db.User.
 		Query().
@@ -59,7 +74,7 @@ func (a *App) GetUserToken(u *domain.User) (string, error) {
 	token := jwt.New(jwt.SigningMethodHS256)
 
 	claims := token.Claims.(jwt.MapClaims)
-	claims["name"] = user.Username
+	claims["username"] = user.Username
 	claims["exp"] = time.Now().Add(time.Hour * time.Duration(a.cfg.Auth.Exp)).Unix()
 
 	t, err := token.SignedString([]byte(a.cfg.Auth.Secret))

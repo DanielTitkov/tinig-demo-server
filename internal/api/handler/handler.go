@@ -34,6 +34,7 @@ func (h *Handler) link(e *echo.Echo) {
 	e.POST("/createUser", h.CreateUserHandler)
 
 	// Restricted group
-	restricted := e.Group("/restricted")
-	restricted.Use(middleware.JWT([]byte("secret")))
+	restricted := e.Group("/private")
+	restricted.Use(middleware.JWT([]byte(h.cfg.Auth.Secret)))
+	restricted.POST("/getUser", h.GetUserHandler)
 }
