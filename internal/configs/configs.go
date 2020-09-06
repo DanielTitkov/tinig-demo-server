@@ -7,7 +7,8 @@ import (
 )
 
 type Config struct {
-	DB DBConfig
+	DB     DBConfig
+	Server ServerConfig
 }
 
 func ReadConfigs(path string) (Config, error) {

@@ -6,12 +6,13 @@ import (
 	"github.com/DanielTitkov/tinig-demo-server/cmd/tinig/prepare"
 	"github.com/DanielTitkov/tinig-demo-server/internal/configs"
 	"github.com/DanielTitkov/tinig-demo-server/internal/ent"
+	"github.com/DanielTitkov/tinig-demo-server/internal/logger"
 
 	_ "github.com/lib/pq"
 )
 
 func main() {
-	logger := prepare.NewLogger()
+	logger := logger.NewLogger()
 	defer logger.Sync()
 	logger.Info("starting service", "")
 
@@ -33,4 +34,7 @@ func main() {
 		logger.Fatal("failed creating schema resources", err)
 	}
 	logger.Info("migrations done", "")
+
+	server := prepare.NewServer(cfg, logger)
+	logger.Fatal("failed to start server", server.Start(cfg.Server.GetAddress()))
 }
