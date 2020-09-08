@@ -1,5 +1,5 @@
 .PHONY: run
-run: 
+run: entgen
 	go run cmd/tinig/main.go
 
 .PHONY: db
