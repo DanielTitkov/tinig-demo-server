@@ -7,7 +7,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/DanielTitkov/tinig-demo-server/internal/ent"
+	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent"
 )
 
 var (

@@ -5,9 +5,9 @@ package enttest
 import (
 	"context"
 
-	"github.com/DanielTitkov/tinig-demo-server/internal/ent"
+	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent"
 	// required by schema hooks.
-	_ "github.com/DanielTitkov/tinig-demo-server/internal/ent/runtime"
+	_ "github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/runtime"
 
 	"github.com/facebook/ent/dialect/sql/schema"
 )

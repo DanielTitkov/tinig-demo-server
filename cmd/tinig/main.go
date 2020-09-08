@@ -6,8 +6,9 @@ import (
 	"github.com/DanielTitkov/tinig-demo-server/cmd/tinig/prepare"
 	"github.com/DanielTitkov/tinig-demo-server/internal/app"
 	"github.com/DanielTitkov/tinig-demo-server/internal/configs"
-	"github.com/DanielTitkov/tinig-demo-server/internal/ent"
 	"github.com/DanielTitkov/tinig-demo-server/internal/logger"
+	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo"
+	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent"
 
 	_ "github.com/lib/pq"
 )
@@ -36,7 +37,9 @@ func main() {
 	}
 	logger.Info("migrations done", "")
 
-	app := app.NewApp(cfg, logger, db)
+	repo := entgo.NewEntgoRepository(db, logger)
+
+	app := app.NewApp(cfg, logger, repo)
 
 	server := prepare.NewServer(cfg, logger, app)
 	logger.Fatal("failed to start server", server.Start(cfg.Server.GetAddress()))

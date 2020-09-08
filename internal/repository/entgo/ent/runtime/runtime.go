@@ -2,7 +2,7 @@
 
 package runtime
 
-// The schema-stitching logic is generated in github.com/DanielTitkov/tinig-demo-server/internal/ent/runtime.go
+// The schema-stitching logic is generated in github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/runtime.go
 
 const (
 	Version = "v0.4.2"                                          // Version of ent codegen.

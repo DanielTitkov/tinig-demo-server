@@ -6,7 +6,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/DanielTitkov/tinig-demo-server/internal/ent"
+	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent"
 )
 
 // The UserFunc type is an adapter to allow the use of ordinary

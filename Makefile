@@ -1,5 +1,5 @@
 .PHONY: run
-run: entgen
+run: 
 	go run cmd/tinig/main.go
 
 .PHONY: db
@@ -8,4 +8,4 @@ db:
 
 .PHONY: entgen
 entgen:
-	cd internal && go generate ./ent
+	cd internal/repository/entgo && go generate ./ent

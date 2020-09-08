@@ -3,8 +3,8 @@ package prepare
 import (
 	"context"
 
-	"github.com/DanielTitkov/tinig-demo-server/internal/ent"
-	"github.com/DanielTitkov/tinig-demo-server/internal/ent/migrate"
+	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent"
+	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/migrate"
 )
 
 func Migrate(ctx context.Context, client *ent.Client) error {

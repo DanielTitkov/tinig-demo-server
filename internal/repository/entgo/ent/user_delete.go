@@ -6,8 +6,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/DanielTitkov/tinig-demo-server/internal/ent/predicate"
-	"github.com/DanielTitkov/tinig-demo-server/internal/ent/user"
+	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/predicate"
+	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/user"
 	"github.com/facebook/ent/dialect/sql"
 	"github.com/facebook/ent/dialect/sql/sqlgraph"
 	"github.com/facebook/ent/schema/field"

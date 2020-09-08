@@ -5,7 +5,7 @@ package user
 import (
 	"time"
 
-	"github.com/DanielTitkov/tinig-demo-server/internal/ent/predicate"
+	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/predicate"
 	"github.com/facebook/ent/dialect/sql"
 )
 

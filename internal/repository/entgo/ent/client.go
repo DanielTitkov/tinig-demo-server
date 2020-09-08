@@ -7,9 +7,9 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/DanielTitkov/tinig-demo-server/internal/ent/migrate"
+	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/migrate"
 
-	"github.com/DanielTitkov/tinig-demo-server/internal/ent/user"
+	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/user"
 
 	"github.com/facebook/ent/dialect"
 	"github.com/facebook/ent/dialect/sql"

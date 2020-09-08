@@ -5,8 +5,8 @@ package ent
 import (
 	"time"
 
-	"github.com/DanielTitkov/tinig-demo-server/internal/ent/schema"
-	"github.com/DanielTitkov/tinig-demo-server/internal/ent/user"
+	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/schema"
+	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/user"
 )
 
 // The init function reads all schema descriptors with runtime
