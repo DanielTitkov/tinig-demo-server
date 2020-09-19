@@ -8,6 +8,57 @@ import (
 )
 
 var (
+	// TasksColumns holds the columns for the "tasks" table.
+	TasksColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "create_time", Type: field.TypeTime},
+		{Name: "update_time", Type: field.TypeTime},
+		{Name: "title", Type: field.TypeString},
+		{Name: "task_type_tasks", Type: field.TypeInt, Nullable: true},
+		{Name: "user_tasks", Type: field.TypeInt, Nullable: true},
+	}
+	// TasksTable holds the schema information for the "tasks" table.
+	TasksTable = &schema.Table{
+		Name:       "tasks",
+		Columns:    TasksColumns,
+		PrimaryKey: []*schema.Column{TasksColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:  "tasks_task_types_tasks",
+				Columns: []*schema.Column{TasksColumns[4]},
+
+				RefColumns: []*schema.Column{TaskTypesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:  "tasks_users_tasks",
+				Columns: []*schema.Column{TasksColumns[5]},
+
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "task_title_user_tasks",
+				Unique:  true,
+				Columns: []*schema.Column{TasksColumns[3], TasksColumns[5]},
+			},
+		},
+	}
+	// TaskTypesColumns holds the columns for the "task_types" table.
+	TaskTypesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "code", Type: field.TypeString, Unique: true},
+		{Name: "title", Type: field.TypeString, Unique: true},
+	}
+	// TaskTypesTable holds the schema information for the "task_types" table.
+	TaskTypesTable = &schema.Table{
+		Name:        "task_types",
+		Columns:     TaskTypesColumns,
+		PrimaryKey:  []*schema.Column{TaskTypesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{},
+	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -26,9 +77,13 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		TasksTable,
+		TaskTypesTable,
 		UsersTable,
 	}
 )
 
 func init() {
+	TasksTable.ForeignKeys[0].RefTable = TaskTypesTable
+	TasksTable.ForeignKeys[1].RefTable = UsersTable
 }

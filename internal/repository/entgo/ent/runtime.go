@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/schema"
+	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/task"
+	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/tasktype"
 	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/user"
 )
 
@@ -13,6 +15,34 @@ import (
 // code (default values, validators or hooks) and stitches it
 // to their package variables.
 func init() {
+	taskMixin := schema.Task{}.Mixin()
+	taskMixinFields0 := taskMixin[0].Fields()
+	taskFields := schema.Task{}.Fields()
+	_ = taskFields
+	// taskDescCreateTime is the schema descriptor for create_time field.
+	taskDescCreateTime := taskMixinFields0[0].Descriptor()
+	// task.DefaultCreateTime holds the default value on creation for the create_time field.
+	task.DefaultCreateTime = taskDescCreateTime.Default.(func() time.Time)
+	// taskDescUpdateTime is the schema descriptor for update_time field.
+	taskDescUpdateTime := taskMixinFields0[1].Descriptor()
+	// task.DefaultUpdateTime holds the default value on creation for the update_time field.
+	task.DefaultUpdateTime = taskDescUpdateTime.Default.(func() time.Time)
+	// task.UpdateDefaultUpdateTime holds the default value on update for the update_time field.
+	task.UpdateDefaultUpdateTime = taskDescUpdateTime.UpdateDefault.(func() time.Time)
+	// taskDescTitle is the schema descriptor for title field.
+	taskDescTitle := taskFields[0].Descriptor()
+	// task.TitleValidator is a validator for the "title" field. It is called by the builders before save.
+	task.TitleValidator = taskDescTitle.Validators[0].(func(string) error)
+	tasktypeFields := schema.TaskType{}.Fields()
+	_ = tasktypeFields
+	// tasktypeDescCode is the schema descriptor for code field.
+	tasktypeDescCode := tasktypeFields[0].Descriptor()
+	// tasktype.CodeValidator is a validator for the "code" field. It is called by the builders before save.
+	tasktype.CodeValidator = tasktypeDescCode.Validators[0].(func(string) error)
+	// tasktypeDescTitle is the schema descriptor for title field.
+	tasktypeDescTitle := tasktypeFields[1].Descriptor()
+	// tasktype.TitleValidator is a validator for the "title" field. It is called by the builders before save.
+	tasktype.TitleValidator = tasktypeDescTitle.Validators[0].(func(string) error)
 	userMixin := schema.User{}.Mixin()
 	userMixinFields0 := userMixin[0].Fields()
 	userFields := schema.User{}.Fields()

@@ -6,5 +6,11 @@ import (
 	"github.com/facebook/ent/dialect/sql"
 )
 
+// Task is the predicate function for task builders.
+type Task func(*sql.Selector)
+
+// TaskType is the predicate function for tasktype builders.
+type TaskType func(*sql.Selector)
+
 // User is the predicate function for user builders.
 type User func(*sql.Selector)

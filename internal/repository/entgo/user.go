@@ -17,6 +17,7 @@ func (r *EntgoRepository) GetUserByUsername(username string) (*domain.User, erro
 	}
 
 	return &domain.User{
+		ID:           user.ID,
 		Username:     user.Username,
 		Email:        user.Email,
 		PasswordHash: user.PasswordHash,
@@ -35,6 +36,7 @@ func (r *EntgoRepository) CreateUser(u *domain.User) (*domain.User, error) {
 	}
 
 	return &domain.User{
+		ID:           user.ID,
 		Username:     user.Username,
 		Email:        user.Email,
 		PasswordHash: user.PasswordHash,

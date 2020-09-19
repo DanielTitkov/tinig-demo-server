@@ -26,6 +26,27 @@ type User struct {
 	Email string `json:"email,omitempty"`
 	// PasswordHash holds the value of the "password_hash" field.
 	PasswordHash string `json:"password_hash,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the UserQuery when eager-loading is set.
+	Edges UserEdges `json:"edges"`
+}
+
+// UserEdges holds the relations/edges for other nodes in the graph.
+type UserEdges struct {
+	// Tasks holds the value of the tasks edge.
+	Tasks []*Task
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// TasksOrErr returns the Tasks value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) TasksOrErr() ([]*Task, error) {
+	if e.loadedTypes[0] {
+		return e.Tasks, nil
+	}
+	return nil, &NotLoadedError{edge: "tasks"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -78,6 +99,11 @@ func (u *User) assignValues(values ...interface{}) error {
 		u.PasswordHash = value.String
 	}
 	return nil
+}
+
+// QueryTasks queries the tasks edge of the User.
+func (u *User) QueryTasks() *TaskQuery {
+	return (&UserClient{config: u.config}).QueryTasks(u)
 }
 
 // Update returns a builder for updating this User.

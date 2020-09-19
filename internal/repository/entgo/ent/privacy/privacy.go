@@ -210,6 +210,54 @@ func DenyMutationOperationRule(op ent.Op) MutationRule {
 	return OnMutationOperation(rule, op)
 }
 
+// The TaskQueryRuleFunc type is an adapter to allow the use of ordinary
+// functions as a query rule.
+type TaskQueryRuleFunc func(context.Context, *ent.TaskQuery) error
+
+// EvalQuery return f(ctx, q).
+func (f TaskQueryRuleFunc) EvalQuery(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.TaskQuery); ok {
+		return f(ctx, q)
+	}
+	return Denyf("ent/privacy: unexpected query type %T, expect *ent.TaskQuery", q)
+}
+
+// The TaskMutationRuleFunc type is an adapter to allow the use of ordinary
+// functions as a mutation rule.
+type TaskMutationRuleFunc func(context.Context, *ent.TaskMutation) error
+
+// EvalMutation calls f(ctx, m).
+func (f TaskMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation) error {
+	if m, ok := m.(*ent.TaskMutation); ok {
+		return f(ctx, m)
+	}
+	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.TaskMutation", m)
+}
+
+// The TaskTypeQueryRuleFunc type is an adapter to allow the use of ordinary
+// functions as a query rule.
+type TaskTypeQueryRuleFunc func(context.Context, *ent.TaskTypeQuery) error
+
+// EvalQuery return f(ctx, q).
+func (f TaskTypeQueryRuleFunc) EvalQuery(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.TaskTypeQuery); ok {
+		return f(ctx, q)
+	}
+	return Denyf("ent/privacy: unexpected query type %T, expect *ent.TaskTypeQuery", q)
+}
+
+// The TaskTypeMutationRuleFunc type is an adapter to allow the use of ordinary
+// functions as a mutation rule.
+type TaskTypeMutationRuleFunc func(context.Context, *ent.TaskTypeMutation) error
+
+// EvalMutation calls f(ctx, m).
+func (f TaskTypeMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation) error {
+	if m, ok := m.(*ent.TaskTypeMutation); ok {
+		return f(ctx, m)
+	}
+	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.TaskTypeMutation", m)
+}
+
 // The UserQueryRuleFunc type is an adapter to allow the use of ordinary
 // functions as a query rule.
 type UserQueryRuleFunc func(context.Context, *ent.UserQuery) error
