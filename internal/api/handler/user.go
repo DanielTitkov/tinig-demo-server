@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/DanielTitkov/tinig-demo-server/internal/api/model"
+	"github.com/DanielTitkov/tinig-demo-server/internal/api/util"
 	"github.com/DanielTitkov/tinig-demo-server/internal/domain"
-	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 )
 
@@ -34,9 +34,13 @@ func (h *Handler) CreateUserHandler(c echo.Context) error {
 }
 
 func (h *Handler) GetUserHandler(c echo.Context) error {
-	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	username := claims["username"].(string)
+	username, err := util.UsernameFromToken(c)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, model.ErrorResponse{
+			Message: "token is invalid",
+			Error:   err.Error(),
+		})
+	}
 
 	u, err := h.app.GetUser(&domain.User{Username: username})
 	if err != nil {
