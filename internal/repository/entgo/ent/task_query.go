@@ -4,10 +4,12 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"errors"
 	"fmt"
 	"math"
 
+	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/item"
 	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/predicate"
 	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/task"
 	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/tasktype"
@@ -26,9 +28,10 @@ type TaskQuery struct {
 	unique     []string
 	predicates []predicate.Task
 	// eager-loading edges.
-	withUser *UserQuery
-	withType *TaskTypeQuery
-	withFKs  bool
+	withItems *ItemQuery
+	withUser  *UserQuery
+	withType  *TaskTypeQuery
+	withFKs   bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -56,6 +59,24 @@ func (tq *TaskQuery) Offset(offset int) *TaskQuery {
 func (tq *TaskQuery) Order(o ...OrderFunc) *TaskQuery {
 	tq.order = append(tq.order, o...)
 	return tq
+}
+
+// QueryItems chains the current query on the items edge.
+func (tq *TaskQuery) QueryItems() *ItemQuery {
+	query := &ItemQuery{config: tq.config}
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := tq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(task.Table, task.FieldID, tq.sqlQuery()),
+			sqlgraph.To(item.Table, item.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, task.ItemsTable, task.ItemsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(tq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // QueryUser chains the current query on the user edge.
@@ -273,6 +294,17 @@ func (tq *TaskQuery) Clone() *TaskQuery {
 	}
 }
 
+//  WithItems tells the query-builder to eager-loads the nodes that are connected to
+// the "items" edge. The optional arguments used to configure the query builder of the edge.
+func (tq *TaskQuery) WithItems(opts ...func(*ItemQuery)) *TaskQuery {
+	query := &ItemQuery{config: tq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	tq.withItems = query
+	return tq
+}
+
 //  WithUser tells the query-builder to eager-loads the nodes that are connected to
 // the "user" edge. The optional arguments used to configure the query builder of the edge.
 func (tq *TaskQuery) WithUser(opts ...func(*UserQuery)) *TaskQuery {
@@ -362,7 +394,8 @@ func (tq *TaskQuery) sqlAll(ctx context.Context) ([]*Task, error) {
 		nodes       = []*Task{}
 		withFKs     = tq.withFKs
 		_spec       = tq.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [3]bool{
+			tq.withItems != nil,
 			tq.withUser != nil,
 			tq.withType != nil,
 		}
@@ -395,6 +428,34 @@ func (tq *TaskQuery) sqlAll(ctx context.Context) ([]*Task, error) {
 	}
 	if len(nodes) == 0 {
 		return nodes, nil
+	}
+
+	if query := tq.withItems; query != nil {
+		fks := make([]driver.Value, 0, len(nodes))
+		nodeids := make(map[int]*Task)
+		for i := range nodes {
+			fks = append(fks, nodes[i].ID)
+			nodeids[nodes[i].ID] = nodes[i]
+		}
+		query.withFKs = true
+		query.Where(predicate.Item(func(s *sql.Selector) {
+			s.Where(sql.InValues(task.ItemsColumn, fks...))
+		}))
+		neighbors, err := query.All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, n := range neighbors {
+			fk := n.task_items
+			if fk == nil {
+				return nil, fmt.Errorf(`foreign-key "task_items" is nil for node %v`, n.ID)
+			}
+			node, ok := nodeids[*fk]
+			if !ok {
+				return nil, fmt.Errorf(`unexpected foreign-key "task_items" returned %v for node %v`, *fk, n.ID)
+			}
+			node.Edges.Items = append(node.Edges.Items, n)
+		}
 	}
 
 	if query := tq.withUser; query != nil {

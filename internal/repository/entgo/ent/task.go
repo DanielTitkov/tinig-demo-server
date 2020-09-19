@@ -22,8 +22,14 @@ type Task struct {
 	CreateTime time.Time `json:"create_time,omitempty"`
 	// UpdateTime holds the value of the "update_time" field.
 	UpdateTime time.Time `json:"update_time,omitempty"`
+	// Slug holds the value of the "slug" field.
+	Slug string `json:"slug,omitempty"`
 	// Title holds the value of the "title" field.
 	Title string `json:"title,omitempty"`
+	// Description holds the value of the "description" field.
+	Description string `json:"description,omitempty"`
+	// Code holds the value of the "code" field.
+	Code string `json:"code,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the TaskQuery when eager-loading is set.
 	Edges           TaskEdges `json:"edges"`
@@ -33,19 +39,30 @@ type Task struct {
 
 // TaskEdges holds the relations/edges for other nodes in the graph.
 type TaskEdges struct {
+	// Items holds the value of the items edge.
+	Items []*Item
 	// User holds the value of the user edge.
 	User *User
 	// Type holds the value of the type edge.
 	Type *TaskType
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [3]bool
+}
+
+// ItemsOrErr returns the Items value or an error if the edge
+// was not loaded in eager-loading.
+func (e TaskEdges) ItemsOrErr() ([]*Item, error) {
+	if e.loadedTypes[0] {
+		return e.Items, nil
+	}
+	return nil, &NotLoadedError{edge: "items"}
 }
 
 // UserOrErr returns the User value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e TaskEdges) UserOrErr() (*User, error) {
-	if e.loadedTypes[0] {
+	if e.loadedTypes[1] {
 		if e.User == nil {
 			// The edge user was loaded in eager-loading,
 			// but was not found.
@@ -59,7 +76,7 @@ func (e TaskEdges) UserOrErr() (*User, error) {
 // TypeOrErr returns the Type value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e TaskEdges) TypeOrErr() (*TaskType, error) {
-	if e.loadedTypes[1] {
+	if e.loadedTypes[2] {
 		if e.Type == nil {
 			// The edge type was loaded in eager-loading,
 			// but was not found.
@@ -76,7 +93,10 @@ func (*Task) scanValues() []interface{} {
 		&sql.NullInt64{},  // id
 		&sql.NullTime{},   // create_time
 		&sql.NullTime{},   // update_time
+		&sql.NullString{}, // slug
 		&sql.NullString{}, // title
+		&sql.NullString{}, // description
+		&sql.NullString{}, // code
 	}
 }
 
@@ -111,11 +131,26 @@ func (t *Task) assignValues(values ...interface{}) error {
 		t.UpdateTime = value.Time
 	}
 	if value, ok := values[2].(*sql.NullString); !ok {
-		return fmt.Errorf("unexpected type %T for field title", values[2])
+		return fmt.Errorf("unexpected type %T for field slug", values[2])
+	} else if value.Valid {
+		t.Slug = value.String
+	}
+	if value, ok := values[3].(*sql.NullString); !ok {
+		return fmt.Errorf("unexpected type %T for field title", values[3])
 	} else if value.Valid {
 		t.Title = value.String
 	}
-	values = values[3:]
+	if value, ok := values[4].(*sql.NullString); !ok {
+		return fmt.Errorf("unexpected type %T for field description", values[4])
+	} else if value.Valid {
+		t.Description = value.String
+	}
+	if value, ok := values[5].(*sql.NullString); !ok {
+		return fmt.Errorf("unexpected type %T for field code", values[5])
+	} else if value.Valid {
+		t.Code = value.String
+	}
+	values = values[6:]
 	if len(values) == len(task.ForeignKeys) {
 		if value, ok := values[0].(*sql.NullInt64); !ok {
 			return fmt.Errorf("unexpected type %T for edge-field task_type_tasks", value)
@@ -131,6 +166,11 @@ func (t *Task) assignValues(values ...interface{}) error {
 		}
 	}
 	return nil
+}
+
+// QueryItems queries the items edge of the Task.
+func (t *Task) QueryItems() *ItemQuery {
+	return (&TaskClient{config: t.config}).QueryItems(t)
 }
 
 // QueryUser queries the user edge of the Task.
@@ -170,8 +210,14 @@ func (t *Task) String() string {
 	builder.WriteString(t.CreateTime.Format(time.ANSIC))
 	builder.WriteString(", update_time=")
 	builder.WriteString(t.UpdateTime.Format(time.ANSIC))
+	builder.WriteString(", slug=")
+	builder.WriteString(t.Slug)
 	builder.WriteString(", title=")
 	builder.WriteString(t.Title)
+	builder.WriteString(", description=")
+	builder.WriteString(t.Description)
+	builder.WriteString(", code=")
+	builder.WriteString(t.Code)
 	builder.WriteByte(')')
 	return builder.String()
 }

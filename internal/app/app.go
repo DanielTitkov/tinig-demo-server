@@ -14,9 +14,11 @@ type (
 	}
 	Repository interface {
 		GetUserByUsername(username string) (*domain.User, error)
+		GetTaskByCode(code string) (*domain.Task, error)
 		GetTaskTypeByCode(code string) (*domain.TaskType, error)
 		CreateUser(*domain.User) (*domain.User, error)
 		CreateTask(*domain.Task, *domain.User, *domain.TaskType) (*domain.Task, error)
+		CreateItem(*domain.Item, *domain.Task) (*domain.Item, error)
 	}
 )
 

@@ -5,6 +5,7 @@ package ent
 import (
 	"time"
 
+	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/item"
 	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/schema"
 	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/task"
 	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/tasktype"
@@ -15,6 +16,28 @@ import (
 // code (default values, validators or hooks) and stitches it
 // to their package variables.
 func init() {
+	itemMixin := schema.Item{}.Mixin()
+	itemMixinFields0 := itemMixin[0].Fields()
+	itemFields := schema.Item{}.Fields()
+	_ = itemFields
+	// itemDescCreateTime is the schema descriptor for create_time field.
+	itemDescCreateTime := itemMixinFields0[0].Descriptor()
+	// item.DefaultCreateTime holds the default value on creation for the create_time field.
+	item.DefaultCreateTime = itemDescCreateTime.Default.(func() time.Time)
+	// itemDescUpdateTime is the schema descriptor for update_time field.
+	itemDescUpdateTime := itemMixinFields0[1].Descriptor()
+	// item.DefaultUpdateTime holds the default value on creation for the update_time field.
+	item.DefaultUpdateTime = itemDescUpdateTime.Default.(func() time.Time)
+	// item.UpdateDefaultUpdateTime holds the default value on update for the update_time field.
+	item.UpdateDefaultUpdateTime = itemDescUpdateTime.UpdateDefault.(func() time.Time)
+	// itemDescSource is the schema descriptor for source field.
+	itemDescSource := itemFields[0].Descriptor()
+	// item.SourceValidator is a validator for the "source" field. It is called by the builders before save.
+	item.SourceValidator = itemDescSource.Validators[0].(func(string) error)
+	// itemDescHash is the schema descriptor for hash field.
+	itemDescHash := itemFields[1].Descriptor()
+	// item.HashValidator is a validator for the "hash" field. It is called by the builders before save.
+	item.HashValidator = itemDescHash.Validators[0].(func(string) error)
 	taskMixin := schema.Task{}.Mixin()
 	taskMixinFields0 := taskMixin[0].Fields()
 	taskFields := schema.Task{}.Fields()
@@ -29,10 +52,18 @@ func init() {
 	task.DefaultUpdateTime = taskDescUpdateTime.Default.(func() time.Time)
 	// task.UpdateDefaultUpdateTime holds the default value on update for the update_time field.
 	task.UpdateDefaultUpdateTime = taskDescUpdateTime.UpdateDefault.(func() time.Time)
+	// taskDescSlug is the schema descriptor for slug field.
+	taskDescSlug := taskFields[0].Descriptor()
+	// task.SlugValidator is a validator for the "slug" field. It is called by the builders before save.
+	task.SlugValidator = taskDescSlug.Validators[0].(func(string) error)
 	// taskDescTitle is the schema descriptor for title field.
-	taskDescTitle := taskFields[0].Descriptor()
+	taskDescTitle := taskFields[1].Descriptor()
 	// task.TitleValidator is a validator for the "title" field. It is called by the builders before save.
 	task.TitleValidator = taskDescTitle.Validators[0].(func(string) error)
+	// taskDescCode is the schema descriptor for code field.
+	taskDescCode := taskFields[3].Descriptor()
+	// task.CodeValidator is a validator for the "code" field. It is called by the builders before save.
+	task.CodeValidator = taskDescCode.Validators[0].(func(string) error)
 	tasktypeFields := schema.TaskType{}.Fields()
 	_ = tasktypeFields
 	// tasktypeDescCode is the schema descriptor for code field.
@@ -65,4 +96,8 @@ func init() {
 	userDescEmail := userFields[1].Descriptor()
 	// user.EmailValidator is a validator for the "email" field. It is called by the builders before save.
 	user.EmailValidator = userDescEmail.Validators[0].(func(string) error)
+	// userDescService is the schema descriptor for service field.
+	userDescService := userFields[3].Descriptor()
+	// user.DefaultService holds the default value on creation for the service field.
+	user.DefaultService = userDescService.Default.(bool)
 }

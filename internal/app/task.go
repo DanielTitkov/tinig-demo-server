@@ -1,6 +1,10 @@
 package app
 
 import (
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/DanielTitkov/tinig-demo-server/internal/domain"
 )
 
@@ -15,6 +19,9 @@ func (a *App) CreateTask(t *domain.Task) error {
 		return err
 	}
 
+	ts := strconv.FormatInt(time.Now().Unix(), 10)
+	code := strings.Join([]string{t.User, t.Type, t.Slug, ts}, "_")
+	t.Code = code
 	_, err = a.repo.CreateTask(t, u, tt)
 	if err != nil {
 		return err

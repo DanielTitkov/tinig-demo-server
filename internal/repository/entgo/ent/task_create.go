@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/item"
 	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/task"
 	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/tasktype"
 	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/user"
@@ -50,10 +51,51 @@ func (tc *TaskCreate) SetNillableUpdateTime(t *time.Time) *TaskCreate {
 	return tc
 }
 
+// SetSlug sets the slug field.
+func (tc *TaskCreate) SetSlug(s string) *TaskCreate {
+	tc.mutation.SetSlug(s)
+	return tc
+}
+
 // SetTitle sets the title field.
 func (tc *TaskCreate) SetTitle(s string) *TaskCreate {
 	tc.mutation.SetTitle(s)
 	return tc
+}
+
+// SetDescription sets the description field.
+func (tc *TaskCreate) SetDescription(s string) *TaskCreate {
+	tc.mutation.SetDescription(s)
+	return tc
+}
+
+// SetNillableDescription sets the description field if the given value is not nil.
+func (tc *TaskCreate) SetNillableDescription(s *string) *TaskCreate {
+	if s != nil {
+		tc.SetDescription(*s)
+	}
+	return tc
+}
+
+// SetCode sets the code field.
+func (tc *TaskCreate) SetCode(s string) *TaskCreate {
+	tc.mutation.SetCode(s)
+	return tc
+}
+
+// AddItemIDs adds the items edge to Item by ids.
+func (tc *TaskCreate) AddItemIDs(ids ...int) *TaskCreate {
+	tc.mutation.AddItemIDs(ids...)
+	return tc
+}
+
+// AddItems adds the items edges to Item.
+func (tc *TaskCreate) AddItems(i ...*Item) *TaskCreate {
+	ids := make([]int, len(i))
+	for j := range i {
+		ids[j] = i[j].ID
+	}
+	return tc.AddItemIDs(ids...)
 }
 
 // SetUserID sets the user edge to User by id.
@@ -133,12 +175,28 @@ func (tc *TaskCreate) preSave() error {
 		v := task.DefaultUpdateTime()
 		tc.mutation.SetUpdateTime(v)
 	}
+	if _, ok := tc.mutation.Slug(); !ok {
+		return &ValidationError{Name: "slug", err: errors.New("ent: missing required field \"slug\"")}
+	}
+	if v, ok := tc.mutation.Slug(); ok {
+		if err := task.SlugValidator(v); err != nil {
+			return &ValidationError{Name: "slug", err: fmt.Errorf("ent: validator failed for field \"slug\": %w", err)}
+		}
+	}
 	if _, ok := tc.mutation.Title(); !ok {
 		return &ValidationError{Name: "title", err: errors.New("ent: missing required field \"title\"")}
 	}
 	if v, ok := tc.mutation.Title(); ok {
 		if err := task.TitleValidator(v); err != nil {
 			return &ValidationError{Name: "title", err: fmt.Errorf("ent: validator failed for field \"title\": %w", err)}
+		}
+	}
+	if _, ok := tc.mutation.Code(); !ok {
+		return &ValidationError{Name: "code", err: errors.New("ent: missing required field \"code\"")}
+	}
+	if v, ok := tc.mutation.Code(); ok {
+		if err := task.CodeValidator(v); err != nil {
+			return &ValidationError{Name: "code", err: fmt.Errorf("ent: validator failed for field \"code\": %w", err)}
 		}
 	}
 	if _, ok := tc.mutation.UserID(); !ok {
@@ -190,6 +248,14 @@ func (tc *TaskCreate) createSpec() (*Task, *sqlgraph.CreateSpec) {
 		})
 		t.UpdateTime = value
 	}
+	if value, ok := tc.mutation.Slug(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: task.FieldSlug,
+		})
+		t.Slug = value
+	}
 	if value, ok := tc.mutation.Title(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -197,6 +263,41 @@ func (tc *TaskCreate) createSpec() (*Task, *sqlgraph.CreateSpec) {
 			Column: task.FieldTitle,
 		})
 		t.Title = value
+	}
+	if value, ok := tc.mutation.Description(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: task.FieldDescription,
+		})
+		t.Description = value
+	}
+	if value, ok := tc.mutation.Code(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: task.FieldCode,
+		})
+		t.Code = value
+	}
+	if nodes := tc.mutation.ItemsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   task.ItemsTable,
+			Columns: []string{task.ItemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: item.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := tc.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

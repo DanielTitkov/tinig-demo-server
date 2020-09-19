@@ -46,6 +46,20 @@ func (uu *UserUpdate) SetPasswordHash(s string) *UserUpdate {
 	return uu
 }
 
+// SetService sets the service field.
+func (uu *UserUpdate) SetService(b bool) *UserUpdate {
+	uu.mutation.SetService(b)
+	return uu
+}
+
+// SetNillableService sets the service field if the given value is not nil.
+func (uu *UserUpdate) SetNillableService(b *bool) *UserUpdate {
+	if b != nil {
+		uu.SetService(*b)
+	}
+	return uu
+}
+
 // AddTaskIDs adds the tasks edge to Task by ids.
 func (uu *UserUpdate) AddTaskIDs(ids ...int) *UserUpdate {
 	uu.mutation.AddTaskIDs(ids...)
@@ -193,6 +207,13 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: user.FieldPasswordHash,
 		})
 	}
+	if value, ok := uu.mutation.Service(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: user.FieldService,
+		})
+	}
 	if nodes := uu.mutation.RemovedTasksIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -264,6 +285,20 @@ func (uuo *UserUpdateOne) SetEmail(s string) *UserUpdateOne {
 // SetPasswordHash sets the password_hash field.
 func (uuo *UserUpdateOne) SetPasswordHash(s string) *UserUpdateOne {
 	uuo.mutation.SetPasswordHash(s)
+	return uuo
+}
+
+// SetService sets the service field.
+func (uuo *UserUpdateOne) SetService(b bool) *UserUpdateOne {
+	uuo.mutation.SetService(b)
+	return uuo
+}
+
+// SetNillableService sets the service field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableService(b *bool) *UserUpdateOne {
+	if b != nil {
+		uuo.SetService(*b)
+	}
 	return uuo
 }
 
@@ -410,6 +445,13 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (u *User, err error) {
 			Type:   field.TypeString,
 			Value:  value,
 			Column: user.FieldPasswordHash,
+		})
+	}
+	if value, ok := uuo.mutation.Service(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: user.FieldService,
 		})
 	}
 	if nodes := uuo.mutation.RemovedTasksIDs(); len(nodes) > 0 {

@@ -15,9 +15,17 @@ const (
 	FieldCreateTime = "create_time"
 	// FieldUpdateTime holds the string denoting the update_time field in the database.
 	FieldUpdateTime = "update_time"
+	// FieldSlug holds the string denoting the slug field in the database.
+	FieldSlug = "slug"
 	// FieldTitle holds the string denoting the title field in the database.
 	FieldTitle = "title"
+	// FieldDescription holds the string denoting the description field in the database.
+	FieldDescription = "description"
+	// FieldCode holds the string denoting the code field in the database.
+	FieldCode = "code"
 
+	// EdgeItems holds the string denoting the items edge name in mutations.
+	EdgeItems = "items"
 	// EdgeUser holds the string denoting the user edge name in mutations.
 	EdgeUser = "user"
 	// EdgeType holds the string denoting the type edge name in mutations.
@@ -25,6 +33,13 @@ const (
 
 	// Table holds the table name of the task in the database.
 	Table = "tasks"
+	// ItemsTable is the table the holds the items relation/edge.
+	ItemsTable = "items"
+	// ItemsInverseTable is the table name for the Item entity.
+	// It exists in this package in order to avoid circular dependency with the "item" package.
+	ItemsInverseTable = "items"
+	// ItemsColumn is the table column denoting the items relation/edge.
+	ItemsColumn = "task_items"
 	// UserTable is the table the holds the user relation/edge.
 	UserTable = "tasks"
 	// UserInverseTable is the table name for the User entity.
@@ -46,7 +61,10 @@ var Columns = []string{
 	FieldID,
 	FieldCreateTime,
 	FieldUpdateTime,
+	FieldSlug,
 	FieldTitle,
+	FieldDescription,
+	FieldCode,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the Task type.
@@ -62,6 +80,10 @@ var (
 	DefaultUpdateTime func() time.Time
 	// UpdateDefaultUpdateTime holds the default value on update for the update_time field.
 	UpdateDefaultUpdateTime func() time.Time
+	// SlugValidator is a validator for the "slug" field. It is called by the builders before save.
+	SlugValidator func(string) error
 	// TitleValidator is a validator for the "title" field. It is called by the builders before save.
 	TitleValidator func(string) error
+	// CodeValidator is a validator for the "code" field. It is called by the builders before save.
+	CodeValidator func(string) error
 )

@@ -18,6 +18,7 @@ func (User) Fields() []ent.Field {
 		field.String("username").Unique().NotEmpty(),
 		field.String("email").Unique().NotEmpty(),
 		field.String("password_hash"),
+		field.Bool("service").Default(false),
 	}
 }
 

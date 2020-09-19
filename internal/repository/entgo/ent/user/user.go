@@ -21,6 +21,8 @@ const (
 	FieldEmail = "email"
 	// FieldPasswordHash holds the string denoting the password_hash field in the database.
 	FieldPasswordHash = "password_hash"
+	// FieldService holds the string denoting the service field in the database.
+	FieldService = "service"
 
 	// EdgeTasks holds the string denoting the tasks edge name in mutations.
 	EdgeTasks = "tasks"
@@ -44,6 +46,7 @@ var Columns = []string{
 	FieldUsername,
 	FieldEmail,
 	FieldPasswordHash,
+	FieldService,
 }
 
 var (
@@ -57,4 +60,6 @@ var (
 	UsernameValidator func(string) error
 	// EmailValidator is a validator for the "email" field. It is called by the builders before save.
 	EmailValidator func(string) error
+	// DefaultService holds the default value on creation for the service field.
+	DefaultService bool
 )

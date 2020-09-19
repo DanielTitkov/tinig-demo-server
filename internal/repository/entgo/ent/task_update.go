@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/item"
 	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/predicate"
 	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/task"
 	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/tasktype"
@@ -30,10 +31,51 @@ func (tu *TaskUpdate) Where(ps ...predicate.Task) *TaskUpdate {
 	return tu
 }
 
+// SetSlug sets the slug field.
+func (tu *TaskUpdate) SetSlug(s string) *TaskUpdate {
+	tu.mutation.SetSlug(s)
+	return tu
+}
+
 // SetTitle sets the title field.
 func (tu *TaskUpdate) SetTitle(s string) *TaskUpdate {
 	tu.mutation.SetTitle(s)
 	return tu
+}
+
+// SetDescription sets the description field.
+func (tu *TaskUpdate) SetDescription(s string) *TaskUpdate {
+	tu.mutation.SetDescription(s)
+	return tu
+}
+
+// SetNillableDescription sets the description field if the given value is not nil.
+func (tu *TaskUpdate) SetNillableDescription(s *string) *TaskUpdate {
+	if s != nil {
+		tu.SetDescription(*s)
+	}
+	return tu
+}
+
+// ClearDescription clears the value of description.
+func (tu *TaskUpdate) ClearDescription() *TaskUpdate {
+	tu.mutation.ClearDescription()
+	return tu
+}
+
+// AddItemIDs adds the items edge to Item by ids.
+func (tu *TaskUpdate) AddItemIDs(ids ...int) *TaskUpdate {
+	tu.mutation.AddItemIDs(ids...)
+	return tu
+}
+
+// AddItems adds the items edges to Item.
+func (tu *TaskUpdate) AddItems(i ...*Item) *TaskUpdate {
+	ids := make([]int, len(i))
+	for j := range i {
+		ids[j] = i[j].ID
+	}
+	return tu.AddItemIDs(ids...)
 }
 
 // SetUserID sets the user edge to User by id.
@@ -63,6 +105,21 @@ func (tu *TaskUpdate) Mutation() *TaskMutation {
 	return tu.mutation
 }
 
+// RemoveItemIDs removes the items edge to Item by ids.
+func (tu *TaskUpdate) RemoveItemIDs(ids ...int) *TaskUpdate {
+	tu.mutation.RemoveItemIDs(ids...)
+	return tu
+}
+
+// RemoveItems removes items edges to Item.
+func (tu *TaskUpdate) RemoveItems(i ...*Item) *TaskUpdate {
+	ids := make([]int, len(i))
+	for j := range i {
+		ids[j] = i[j].ID
+	}
+	return tu.RemoveItemIDs(ids...)
+}
+
 // ClearUser clears the user edge to User.
 func (tu *TaskUpdate) ClearUser() *TaskUpdate {
 	tu.mutation.ClearUser()
@@ -80,6 +137,11 @@ func (tu *TaskUpdate) Save(ctx context.Context) (int, error) {
 	if _, ok := tu.mutation.UpdateTime(); !ok {
 		v := task.UpdateDefaultUpdateTime()
 		tu.mutation.SetUpdateTime(v)
+	}
+	if v, ok := tu.mutation.Slug(); ok {
+		if err := task.SlugValidator(v); err != nil {
+			return 0, &ValidationError{Name: "slug", err: fmt.Errorf("ent: validator failed for field \"slug\": %w", err)}
+		}
 	}
 	if v, ok := tu.mutation.Title(); ok {
 		if err := task.TitleValidator(v); err != nil {
@@ -168,12 +230,70 @@ func (tu *TaskUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: task.FieldUpdateTime,
 		})
 	}
+	if value, ok := tu.mutation.Slug(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: task.FieldSlug,
+		})
+	}
 	if value, ok := tu.mutation.Title(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Value:  value,
 			Column: task.FieldTitle,
 		})
+	}
+	if value, ok := tu.mutation.Description(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: task.FieldDescription,
+		})
+	}
+	if tu.mutation.DescriptionCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: task.FieldDescription,
+		})
+	}
+	if nodes := tu.mutation.RemovedItemsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   task.ItemsTable,
+			Columns: []string{task.ItemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: item.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tu.mutation.ItemsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   task.ItemsTable,
+			Columns: []string{task.ItemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: item.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if tu.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -263,10 +383,51 @@ type TaskUpdateOne struct {
 	mutation *TaskMutation
 }
 
+// SetSlug sets the slug field.
+func (tuo *TaskUpdateOne) SetSlug(s string) *TaskUpdateOne {
+	tuo.mutation.SetSlug(s)
+	return tuo
+}
+
 // SetTitle sets the title field.
 func (tuo *TaskUpdateOne) SetTitle(s string) *TaskUpdateOne {
 	tuo.mutation.SetTitle(s)
 	return tuo
+}
+
+// SetDescription sets the description field.
+func (tuo *TaskUpdateOne) SetDescription(s string) *TaskUpdateOne {
+	tuo.mutation.SetDescription(s)
+	return tuo
+}
+
+// SetNillableDescription sets the description field if the given value is not nil.
+func (tuo *TaskUpdateOne) SetNillableDescription(s *string) *TaskUpdateOne {
+	if s != nil {
+		tuo.SetDescription(*s)
+	}
+	return tuo
+}
+
+// ClearDescription clears the value of description.
+func (tuo *TaskUpdateOne) ClearDescription() *TaskUpdateOne {
+	tuo.mutation.ClearDescription()
+	return tuo
+}
+
+// AddItemIDs adds the items edge to Item by ids.
+func (tuo *TaskUpdateOne) AddItemIDs(ids ...int) *TaskUpdateOne {
+	tuo.mutation.AddItemIDs(ids...)
+	return tuo
+}
+
+// AddItems adds the items edges to Item.
+func (tuo *TaskUpdateOne) AddItems(i ...*Item) *TaskUpdateOne {
+	ids := make([]int, len(i))
+	for j := range i {
+		ids[j] = i[j].ID
+	}
+	return tuo.AddItemIDs(ids...)
 }
 
 // SetUserID sets the user edge to User by id.
@@ -296,6 +457,21 @@ func (tuo *TaskUpdateOne) Mutation() *TaskMutation {
 	return tuo.mutation
 }
 
+// RemoveItemIDs removes the items edge to Item by ids.
+func (tuo *TaskUpdateOne) RemoveItemIDs(ids ...int) *TaskUpdateOne {
+	tuo.mutation.RemoveItemIDs(ids...)
+	return tuo
+}
+
+// RemoveItems removes items edges to Item.
+func (tuo *TaskUpdateOne) RemoveItems(i ...*Item) *TaskUpdateOne {
+	ids := make([]int, len(i))
+	for j := range i {
+		ids[j] = i[j].ID
+	}
+	return tuo.RemoveItemIDs(ids...)
+}
+
 // ClearUser clears the user edge to User.
 func (tuo *TaskUpdateOne) ClearUser() *TaskUpdateOne {
 	tuo.mutation.ClearUser()
@@ -313,6 +489,11 @@ func (tuo *TaskUpdateOne) Save(ctx context.Context) (*Task, error) {
 	if _, ok := tuo.mutation.UpdateTime(); !ok {
 		v := task.UpdateDefaultUpdateTime()
 		tuo.mutation.SetUpdateTime(v)
+	}
+	if v, ok := tuo.mutation.Slug(); ok {
+		if err := task.SlugValidator(v); err != nil {
+			return nil, &ValidationError{Name: "slug", err: fmt.Errorf("ent: validator failed for field \"slug\": %w", err)}
+		}
 	}
 	if v, ok := tuo.mutation.Title(); ok {
 		if err := task.TitleValidator(v); err != nil {
@@ -399,12 +580,70 @@ func (tuo *TaskUpdateOne) sqlSave(ctx context.Context) (t *Task, err error) {
 			Column: task.FieldUpdateTime,
 		})
 	}
+	if value, ok := tuo.mutation.Slug(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: task.FieldSlug,
+		})
+	}
 	if value, ok := tuo.mutation.Title(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Value:  value,
 			Column: task.FieldTitle,
 		})
+	}
+	if value, ok := tuo.mutation.Description(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: task.FieldDescription,
+		})
+	}
+	if tuo.mutation.DescriptionCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: task.FieldDescription,
+		})
+	}
+	if nodes := tuo.mutation.RemovedItemsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   task.ItemsTable,
+			Columns: []string{task.ItemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: item.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tuo.mutation.ItemsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   task.ItemsTable,
+			Columns: []string{task.ItemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: item.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if tuo.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{

@@ -67,6 +67,20 @@ func (uc *UserCreate) SetPasswordHash(s string) *UserCreate {
 	return uc
 }
 
+// SetService sets the service field.
+func (uc *UserCreate) SetService(b bool) *UserCreate {
+	uc.mutation.SetService(b)
+	return uc
+}
+
+// SetNillableService sets the service field if the given value is not nil.
+func (uc *UserCreate) SetNillableService(b *bool) *UserCreate {
+	if b != nil {
+		uc.SetService(*b)
+	}
+	return uc
+}
+
 // AddTaskIDs adds the tasks edge to Task by ids.
 func (uc *UserCreate) AddTaskIDs(ids ...int) *UserCreate {
 	uc.mutation.AddTaskIDs(ids...)
@@ -156,6 +170,10 @@ func (uc *UserCreate) preSave() error {
 	if _, ok := uc.mutation.PasswordHash(); !ok {
 		return &ValidationError{Name: "password_hash", err: errors.New("ent: missing required field \"password_hash\"")}
 	}
+	if _, ok := uc.mutation.Service(); !ok {
+		v := user.DefaultService
+		uc.mutation.SetService(v)
+	}
 	return nil
 }
 
@@ -222,6 +240,14 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Column: user.FieldPasswordHash,
 		})
 		u.PasswordHash = value
+	}
+	if value, ok := uc.mutation.Service(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: user.FieldService,
+		})
+		u.Service = value
 	}
 	if nodes := uc.mutation.TasksIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

@@ -8,12 +8,40 @@ import (
 )
 
 var (
+	// ItemsColumns holds the columns for the "items" table.
+	ItemsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "create_time", Type: field.TypeTime},
+		{Name: "update_time", Type: field.TypeTime},
+		{Name: "source", Type: field.TypeString},
+		{Name: "hash", Type: field.TypeString},
+		{Name: "data", Type: field.TypeJSON, Nullable: true},
+		{Name: "task_items", Type: field.TypeInt, Nullable: true},
+	}
+	// ItemsTable holds the schema information for the "items" table.
+	ItemsTable = &schema.Table{
+		Name:       "items",
+		Columns:    ItemsColumns,
+		PrimaryKey: []*schema.Column{ItemsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:  "items_tasks_items",
+				Columns: []*schema.Column{ItemsColumns[6]},
+
+				RefColumns: []*schema.Column{TasksColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+	}
 	// TasksColumns holds the columns for the "tasks" table.
 	TasksColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "create_time", Type: field.TypeTime},
 		{Name: "update_time", Type: field.TypeTime},
+		{Name: "slug", Type: field.TypeString},
 		{Name: "title", Type: field.TypeString},
+		{Name: "description", Type: field.TypeString, Nullable: true},
+		{Name: "code", Type: field.TypeString, Unique: true},
 		{Name: "task_type_tasks", Type: field.TypeInt, Nullable: true},
 		{Name: "user_tasks", Type: field.TypeInt, Nullable: true},
 	}
@@ -25,14 +53,14 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:  "tasks_task_types_tasks",
-				Columns: []*schema.Column{TasksColumns[4]},
+				Columns: []*schema.Column{TasksColumns[7]},
 
 				RefColumns: []*schema.Column{TaskTypesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:  "tasks_users_tasks",
-				Columns: []*schema.Column{TasksColumns[5]},
+				Columns: []*schema.Column{TasksColumns[8]},
 
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.SetNull,
@@ -40,9 +68,14 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
+				Name:    "task_slug_user_tasks",
+				Unique:  true,
+				Columns: []*schema.Column{TasksColumns[3], TasksColumns[8]},
+			},
+			{
 				Name:    "task_title_user_tasks",
 				Unique:  true,
-				Columns: []*schema.Column{TasksColumns[3], TasksColumns[5]},
+				Columns: []*schema.Column{TasksColumns[4], TasksColumns[8]},
 			},
 		},
 	}
@@ -67,6 +100,7 @@ var (
 		{Name: "username", Type: field.TypeString, Unique: true},
 		{Name: "email", Type: field.TypeString, Unique: true},
 		{Name: "password_hash", Type: field.TypeString},
+		{Name: "service", Type: field.TypeBool},
 	}
 	// UsersTable holds the schema information for the "users" table.
 	UsersTable = &schema.Table{
@@ -77,6 +111,7 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		ItemsTable,
 		TasksTable,
 		TaskTypesTable,
 		UsersTable,
@@ -84,6 +119,7 @@ var (
 )
 
 func init() {
+	ItemsTable.ForeignKeys[0].RefTable = TasksTable
 	TasksTable.ForeignKeys[0].RefTable = TaskTypesTable
 	TasksTable.ForeignKeys[1].RefTable = UsersTable
 }

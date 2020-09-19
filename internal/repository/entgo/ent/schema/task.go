@@ -1,6 +1,8 @@
 package schema
 
 import (
+	"regexp"
+
 	"github.com/facebook/ent"
 	"github.com/facebook/ent/schema/edge"
 	"github.com/facebook/ent/schema/field"
@@ -16,13 +18,19 @@ type Task struct {
 // Fields of the Task.
 func (Task) Fields() []ent.Field {
 	return []ent.Field{
+		field.String("slug").Match(regexp.MustCompile("^[a-zA-Z0-9]+$")),
 		field.String("title").NotEmpty(),
+		field.String("description").Optional(),
+		field.String("code").NotEmpty().Unique().Immutable(),
 	}
 }
 
 // Edges of the Task.
 func (Task) Edges() []ent.Edge {
 	return []ent.Edge{
+		// has
+		edge.To("items", Item.Type),
+		// belongs to
 		edge.From("user", User.Type).Ref("tasks").Unique().Required(),
 		edge.From("type", TaskType.Type).Ref("tasks").Unique().Required(),
 	}
@@ -31,6 +39,7 @@ func (Task) Edges() []ent.Edge {
 // Indexes of the Task.
 func (Task) Indexes() []ent.Index {
 	return []ent.Index{
+		index.Fields("slug").Edges("user").Unique(),
 		index.Fields("title").Edges("user").Unique(),
 	}
 }

@@ -128,6 +128,13 @@ func PasswordHash(v string) predicate.User {
 	})
 }
 
+// Service applies equality check predicate on the "service" field. It's identical to ServiceEQ.
+func Service(v bool) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldService), v))
+	})
+}
+
 // CreateTimeEQ applies the EQ predicate on the "create_time" field.
 func CreateTimeEQ(v time.Time) predicate.User {
 	return predicate.User(func(s *sql.Selector) {
@@ -610,6 +617,20 @@ func PasswordHashEqualFold(v string) predicate.User {
 func PasswordHashContainsFold(v string) predicate.User {
 	return predicate.User(func(s *sql.Selector) {
 		s.Where(sql.ContainsFold(s.C(FieldPasswordHash), v))
+	})
+}
+
+// ServiceEQ applies the EQ predicate on the "service" field.
+func ServiceEQ(v bool) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldService), v))
+	})
+}
+
+// ServiceNEQ applies the NEQ predicate on the "service" field.
+func ServiceNEQ(v bool) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldService), v))
 	})
 }
 
