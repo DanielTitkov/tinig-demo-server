@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"time"
 
 	"github.com/DanielTitkov/tinig-demo-server/cmd/tinig/prepare"
 	"github.com/DanielTitkov/tinig-demo-server/internal/app"
@@ -40,6 +41,14 @@ func main() {
 	repo := entgo.NewEntgoRepository(db, logger)
 
 	app := app.NewApp(cfg, logger, repo)
+
+	go func() {
+		for {
+			app.CreateSystemSummary()
+			time.Sleep(10 * time.Second)
+			logger.Info("calculated system summary", "")
+		}
+	}()
 
 	server := prepare.NewServer(cfg, logger, app)
 	logger.Fatal("failed to start server", server.Start(cfg.Server.GetAddress()))

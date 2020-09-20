@@ -33,6 +33,23 @@ var (
 			},
 		},
 	}
+	// SystemSummariesColumns holds the columns for the "system_summaries" table.
+	SystemSummariesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "create_time", Type: field.TypeTime},
+		{Name: "users", Type: field.TypeInt},
+		{Name: "tasks", Type: field.TypeInt},
+		{Name: "active_tasks", Type: field.TypeInt},
+		{Name: "items", Type: field.TypeInt},
+		{Name: "avg_items_per_task", Type: field.TypeFloat64},
+	}
+	// SystemSummariesTable holds the schema information for the "system_summaries" table.
+	SystemSummariesTable = &schema.Table{
+		Name:        "system_summaries",
+		Columns:     SystemSummariesColumns,
+		PrimaryKey:  []*schema.Column{SystemSummariesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{},
+	}
 	// TasksColumns holds the columns for the "tasks" table.
 	TasksColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -114,6 +131,7 @@ var (
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		ItemsTable,
+		SystemSummariesTable,
 		TasksTable,
 		TaskTypesTable,
 		UsersTable,

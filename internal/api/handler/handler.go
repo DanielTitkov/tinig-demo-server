@@ -32,6 +32,7 @@ func NewHandler(
 func (h *Handler) link(e *echo.Echo) {
 	e.POST("/getToken", h.GetTokenHandler)
 	e.POST("/createUser", h.CreateUserHandler)
+	e.POST("/getSystemSummary", h.GetSystemSummaryHandler)
 
 	// Restricted group
 	restricted := e.Group("/private")

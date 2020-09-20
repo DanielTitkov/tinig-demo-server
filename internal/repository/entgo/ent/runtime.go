@@ -7,6 +7,7 @@ import (
 
 	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/item"
 	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/schema"
+	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/systemsummary"
 	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/task"
 	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/tasktype"
 	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/user"
@@ -38,6 +39,14 @@ func init() {
 	itemDescHash := itemFields[1].Descriptor()
 	// item.HashValidator is a validator for the "hash" field. It is called by the builders before save.
 	item.HashValidator = itemDescHash.Validators[0].(func(string) error)
+	systemsummaryMixin := schema.SystemSummary{}.Mixin()
+	systemsummaryMixinFields0 := systemsummaryMixin[0].Fields()
+	systemsummaryFields := schema.SystemSummary{}.Fields()
+	_ = systemsummaryFields
+	// systemsummaryDescCreateTime is the schema descriptor for create_time field.
+	systemsummaryDescCreateTime := systemsummaryMixinFields0[0].Descriptor()
+	// systemsummary.DefaultCreateTime holds the default value on creation for the create_time field.
+	systemsummary.DefaultCreateTime = systemsummaryDescCreateTime.Default.(func() time.Time)
 	taskMixin := schema.Task{}.Mixin()
 	taskMixinFields0 := taskMixin[0].Fields()
 	taskFields := schema.Task{}.Fields()

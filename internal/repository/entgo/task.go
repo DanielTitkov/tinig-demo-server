@@ -122,3 +122,12 @@ func (r *EntgoRepository) GetTasks(u *domain.User, itemLimit int, deactivated bo
 
 	return res, nil
 }
+
+func (r *EntgoRepository) GetTaskCount(active bool) (int, error) {
+	taskCountQuery := r.client.Task.Query()
+	if active {
+		taskCountQuery = taskCountQuery.Where(task.ActiveEQ(true))
+	}
+
+	return taskCountQuery.Count(context.Background())
+}

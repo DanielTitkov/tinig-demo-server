@@ -42,3 +42,7 @@ func (r *EntgoRepository) CreateUser(u *domain.User) (*domain.User, error) {
 		PasswordHash: user.PasswordHash,
 	}, nil
 }
+
+func (r *EntgoRepository) GetUserCount() (int, error) {
+	return r.client.User.Query().Count(context.Background())
+}

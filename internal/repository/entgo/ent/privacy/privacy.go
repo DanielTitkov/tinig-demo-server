@@ -234,6 +234,30 @@ func (f ItemMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation) 
 	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.ItemMutation", m)
 }
 
+// The SystemSummaryQueryRuleFunc type is an adapter to allow the use of ordinary
+// functions as a query rule.
+type SystemSummaryQueryRuleFunc func(context.Context, *ent.SystemSummaryQuery) error
+
+// EvalQuery return f(ctx, q).
+func (f SystemSummaryQueryRuleFunc) EvalQuery(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.SystemSummaryQuery); ok {
+		return f(ctx, q)
+	}
+	return Denyf("ent/privacy: unexpected query type %T, expect *ent.SystemSummaryQuery", q)
+}
+
+// The SystemSummaryMutationRuleFunc type is an adapter to allow the use of ordinary
+// functions as a mutation rule.
+type SystemSummaryMutationRuleFunc func(context.Context, *ent.SystemSummaryMutation) error
+
+// EvalMutation calls f(ctx, m).
+func (f SystemSummaryMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation) error {
+	if m, ok := m.(*ent.SystemSummaryMutation); ok {
+		return f(ctx, m)
+	}
+	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.SystemSummaryMutation", m)
+}
+
 // The TaskQueryRuleFunc type is an adapter to allow the use of ordinary
 // functions as a query rule.
 type TaskQueryRuleFunc func(context.Context, *ent.TaskQuery) error

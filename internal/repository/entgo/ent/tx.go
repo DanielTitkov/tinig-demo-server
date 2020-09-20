@@ -14,6 +14,8 @@ type Tx struct {
 	config
 	// Item is the client for interacting with the Item builders.
 	Item *ItemClient
+	// SystemSummary is the client for interacting with the SystemSummary builders.
+	SystemSummary *SystemSummaryClient
 	// Task is the client for interacting with the Task builders.
 	Task *TaskClient
 	// TaskType is the client for interacting with the TaskType builders.
@@ -156,6 +158,7 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.Item = NewItemClient(tx.config)
+	tx.SystemSummary = NewSystemSummaryClient(tx.config)
 	tx.Task = NewTaskClient(tx.config)
 	tx.TaskType = NewTaskTypeClient(tx.config)
 	tx.User = NewUserClient(tx.config)

@@ -1,5 +1,7 @@
 package domain
 
+import "time"
+
 type (
 	User struct {
 		ID           int  // id is passed to domain model for simplicity
@@ -38,5 +40,14 @@ type (
 		Word     string  `json:"word,omitempty"`
 		Rate     float64 `json:"rate,omitempty"`
 		Platform string  `json:"platform,omitempty"`
+	}
+	SystemSymmary struct {
+		ID              int
+		Users           int
+		Tasks           int
+		ActiveTasks     int
+		Items           int
+		AvgItemsPerTask float64
+		CreateTime      time.Time
 	}
 )

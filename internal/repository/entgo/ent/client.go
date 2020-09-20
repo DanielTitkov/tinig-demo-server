@@ -10,6 +10,7 @@ import (
 	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/migrate"
 
 	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/item"
+	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/systemsummary"
 	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/task"
 	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/tasktype"
 	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/user"
@@ -26,6 +27,8 @@ type Client struct {
 	Schema *migrate.Schema
 	// Item is the client for interacting with the Item builders.
 	Item *ItemClient
+	// SystemSummary is the client for interacting with the SystemSummary builders.
+	SystemSummary *SystemSummaryClient
 	// Task is the client for interacting with the Task builders.
 	Task *TaskClient
 	// TaskType is the client for interacting with the TaskType builders.
@@ -46,6 +49,7 @@ func NewClient(opts ...Option) *Client {
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.Item = NewItemClient(c.config)
+	c.SystemSummary = NewSystemSummaryClient(c.config)
 	c.Task = NewTaskClient(c.config)
 	c.TaskType = NewTaskTypeClient(c.config)
 	c.User = NewUserClient(c.config)
@@ -79,12 +83,13 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	}
 	cfg := config{driver: tx, log: c.log, debug: c.debug, hooks: c.hooks}
 	return &Tx{
-		ctx:      ctx,
-		config:   cfg,
-		Item:     NewItemClient(cfg),
-		Task:     NewTaskClient(cfg),
-		TaskType: NewTaskTypeClient(cfg),
-		User:     NewUserClient(cfg),
+		ctx:           ctx,
+		config:        cfg,
+		Item:          NewItemClient(cfg),
+		SystemSummary: NewSystemSummaryClient(cfg),
+		Task:          NewTaskClient(cfg),
+		TaskType:      NewTaskTypeClient(cfg),
+		User:          NewUserClient(cfg),
 	}, nil
 }
 
@@ -99,11 +104,12 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	}
 	cfg := config{driver: &txDriver{tx: tx, drv: c.driver}, log: c.log, debug: c.debug, hooks: c.hooks}
 	return &Tx{
-		config:   cfg,
-		Item:     NewItemClient(cfg),
-		Task:     NewTaskClient(cfg),
-		TaskType: NewTaskTypeClient(cfg),
-		User:     NewUserClient(cfg),
+		config:        cfg,
+		Item:          NewItemClient(cfg),
+		SystemSummary: NewSystemSummaryClient(cfg),
+		Task:          NewTaskClient(cfg),
+		TaskType:      NewTaskTypeClient(cfg),
+		User:          NewUserClient(cfg),
 	}, nil
 }
 
@@ -133,6 +139,7 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	c.Item.Use(hooks...)
+	c.SystemSummary.Use(hooks...)
 	c.Task.Use(hooks...)
 	c.TaskType.Use(hooks...)
 	c.User.Use(hooks...)
@@ -240,6 +247,94 @@ func (c *ItemClient) QueryTask(i *Item) *TaskQuery {
 // Hooks returns the client hooks.
 func (c *ItemClient) Hooks() []Hook {
 	return c.hooks.Item
+}
+
+// SystemSummaryClient is a client for the SystemSummary schema.
+type SystemSummaryClient struct {
+	config
+}
+
+// NewSystemSummaryClient returns a client for the SystemSummary from the given config.
+func NewSystemSummaryClient(c config) *SystemSummaryClient {
+	return &SystemSummaryClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `systemsummary.Hooks(f(g(h())))`.
+func (c *SystemSummaryClient) Use(hooks ...Hook) {
+	c.hooks.SystemSummary = append(c.hooks.SystemSummary, hooks...)
+}
+
+// Create returns a create builder for SystemSummary.
+func (c *SystemSummaryClient) Create() *SystemSummaryCreate {
+	mutation := newSystemSummaryMutation(c.config, OpCreate)
+	return &SystemSummaryCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// BulkCreate returns a builder for creating a bulk of SystemSummary entities.
+func (c *SystemSummaryClient) CreateBulk(builders ...*SystemSummaryCreate) *SystemSummaryCreateBulk {
+	return &SystemSummaryCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for SystemSummary.
+func (c *SystemSummaryClient) Update() *SystemSummaryUpdate {
+	mutation := newSystemSummaryMutation(c.config, OpUpdate)
+	return &SystemSummaryUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *SystemSummaryClient) UpdateOne(ss *SystemSummary) *SystemSummaryUpdateOne {
+	mutation := newSystemSummaryMutation(c.config, OpUpdateOne, withSystemSummary(ss))
+	return &SystemSummaryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *SystemSummaryClient) UpdateOneID(id int) *SystemSummaryUpdateOne {
+	mutation := newSystemSummaryMutation(c.config, OpUpdateOne, withSystemSummaryID(id))
+	return &SystemSummaryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for SystemSummary.
+func (c *SystemSummaryClient) Delete() *SystemSummaryDelete {
+	mutation := newSystemSummaryMutation(c.config, OpDelete)
+	return &SystemSummaryDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a delete builder for the given entity.
+func (c *SystemSummaryClient) DeleteOne(ss *SystemSummary) *SystemSummaryDeleteOne {
+	return c.DeleteOneID(ss.ID)
+}
+
+// DeleteOneID returns a delete builder for the given id.
+func (c *SystemSummaryClient) DeleteOneID(id int) *SystemSummaryDeleteOne {
+	builder := c.Delete().Where(systemsummary.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &SystemSummaryDeleteOne{builder}
+}
+
+// Query returns a query builder for SystemSummary.
+func (c *SystemSummaryClient) Query() *SystemSummaryQuery {
+	return &SystemSummaryQuery{config: c.config}
+}
+
+// Get returns a SystemSummary entity by its id.
+func (c *SystemSummaryClient) Get(ctx context.Context, id int) (*SystemSummary, error) {
+	return c.Query().Where(systemsummary.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *SystemSummaryClient) GetX(ctx context.Context, id int) *SystemSummary {
+	ss, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return ss
+}
+
+// Hooks returns the client hooks.
+func (c *SystemSummaryClient) Hooks() []Hook {
+	return c.hooks.SystemSummary
 }
 
 // TaskClient is a client for the Task schema.

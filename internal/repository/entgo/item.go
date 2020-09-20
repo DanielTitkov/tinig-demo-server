@@ -25,3 +25,7 @@ func (r *EntgoRepository) CreateItem(i *domain.Item, t *domain.Task) (*domain.It
 		Task:   i.Task,
 	}, nil
 }
+
+func (r *EntgoRepository) GetItemCount() (int, error) {
+	return r.client.Item.Query().Count(context.Background())
+}

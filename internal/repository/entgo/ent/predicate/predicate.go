@@ -9,6 +9,9 @@ import (
 // Item is the predicate function for item builders.
 type Item func(*sql.Selector)
 
+// SystemSummary is the predicate function for systemsummary builders.
+type SystemSummary func(*sql.Selector)
+
 // Task is the predicate function for task builders.
 type Task func(*sql.Selector)
 

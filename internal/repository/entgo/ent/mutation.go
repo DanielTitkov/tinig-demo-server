@@ -10,6 +10,7 @@ import (
 
 	"github.com/DanielTitkov/tinig-demo-server/internal/domain"
 	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/item"
+	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/systemsummary"
 	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/task"
 	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/tasktype"
 	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/user"
@@ -26,10 +27,11 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
-	TypeItem     = "Item"
-	TypeTask     = "Task"
-	TypeTaskType = "TaskType"
-	TypeUser     = "User"
+	TypeItem          = "Item"
+	TypeSystemSummary = "SystemSummary"
+	TypeTask          = "Task"
+	TypeTaskType      = "TaskType"
+	TypeUser          = "User"
 )
 
 // ItemMutation represents an operation that mutate the Items
@@ -634,6 +636,742 @@ func (m *ItemMutation) ResetEdge(name string) error {
 		return nil
 	}
 	return fmt.Errorf("unknown Item edge %s", name)
+}
+
+// SystemSummaryMutation represents an operation that mutate the SystemSummaries
+// nodes in the graph.
+type SystemSummaryMutation struct {
+	config
+	op                    Op
+	typ                   string
+	id                    *int
+	create_time           *time.Time
+	users                 *int
+	addusers              *int
+	tasks                 *int
+	addtasks              *int
+	active_tasks          *int
+	addactive_tasks       *int
+	items                 *int
+	additems              *int
+	avg_items_per_task    *float64
+	addavg_items_per_task *float64
+	clearedFields         map[string]struct{}
+	done                  bool
+	oldValue              func(context.Context) (*SystemSummary, error)
+}
+
+var _ ent.Mutation = (*SystemSummaryMutation)(nil)
+
+// systemsummaryOption allows to manage the mutation configuration using functional options.
+type systemsummaryOption func(*SystemSummaryMutation)
+
+// newSystemSummaryMutation creates new mutation for $n.Name.
+func newSystemSummaryMutation(c config, op Op, opts ...systemsummaryOption) *SystemSummaryMutation {
+	m := &SystemSummaryMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeSystemSummary,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withSystemSummaryID sets the id field of the mutation.
+func withSystemSummaryID(id int) systemsummaryOption {
+	return func(m *SystemSummaryMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *SystemSummary
+		)
+		m.oldValue = func(ctx context.Context) (*SystemSummary, error) {
+			once.Do(func() {
+				if m.done {
+					err = fmt.Errorf("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().SystemSummary.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withSystemSummary sets the old SystemSummary of the mutation.
+func withSystemSummary(node *SystemSummary) systemsummaryOption {
+	return func(m *SystemSummaryMutation) {
+		m.oldValue = func(context.Context) (*SystemSummary, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m SystemSummaryMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m SystemSummaryMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, fmt.Errorf("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the id value in the mutation. Note that, the id
+// is available only if it was provided to the builder.
+func (m *SystemSummaryMutation) ID() (id int, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// SetCreateTime sets the create_time field.
+func (m *SystemSummaryMutation) SetCreateTime(t time.Time) {
+	m.create_time = &t
+}
+
+// CreateTime returns the create_time value in the mutation.
+func (m *SystemSummaryMutation) CreateTime() (r time.Time, exists bool) {
+	v := m.create_time
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreateTime returns the old create_time value of the SystemSummary.
+// If the SystemSummary object wasn't provided to the builder, the object is fetched
+// from the database.
+// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+func (m *SystemSummaryMutation) OldCreateTime(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldCreateTime is allowed only on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldCreateTime requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreateTime: %w", err)
+	}
+	return oldValue.CreateTime, nil
+}
+
+// ResetCreateTime reset all changes of the "create_time" field.
+func (m *SystemSummaryMutation) ResetCreateTime() {
+	m.create_time = nil
+}
+
+// SetUsers sets the users field.
+func (m *SystemSummaryMutation) SetUsers(i int) {
+	m.users = &i
+	m.addusers = nil
+}
+
+// Users returns the users value in the mutation.
+func (m *SystemSummaryMutation) Users() (r int, exists bool) {
+	v := m.users
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUsers returns the old users value of the SystemSummary.
+// If the SystemSummary object wasn't provided to the builder, the object is fetched
+// from the database.
+// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+func (m *SystemSummaryMutation) OldUsers(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldUsers is allowed only on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldUsers requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUsers: %w", err)
+	}
+	return oldValue.Users, nil
+}
+
+// AddUsers adds i to users.
+func (m *SystemSummaryMutation) AddUsers(i int) {
+	if m.addusers != nil {
+		*m.addusers += i
+	} else {
+		m.addusers = &i
+	}
+}
+
+// AddedUsers returns the value that was added to the users field in this mutation.
+func (m *SystemSummaryMutation) AddedUsers() (r int, exists bool) {
+	v := m.addusers
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetUsers reset all changes of the "users" field.
+func (m *SystemSummaryMutation) ResetUsers() {
+	m.users = nil
+	m.addusers = nil
+}
+
+// SetTasks sets the tasks field.
+func (m *SystemSummaryMutation) SetTasks(i int) {
+	m.tasks = &i
+	m.addtasks = nil
+}
+
+// Tasks returns the tasks value in the mutation.
+func (m *SystemSummaryMutation) Tasks() (r int, exists bool) {
+	v := m.tasks
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTasks returns the old tasks value of the SystemSummary.
+// If the SystemSummary object wasn't provided to the builder, the object is fetched
+// from the database.
+// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+func (m *SystemSummaryMutation) OldTasks(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldTasks is allowed only on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldTasks requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTasks: %w", err)
+	}
+	return oldValue.Tasks, nil
+}
+
+// AddTasks adds i to tasks.
+func (m *SystemSummaryMutation) AddTasks(i int) {
+	if m.addtasks != nil {
+		*m.addtasks += i
+	} else {
+		m.addtasks = &i
+	}
+}
+
+// AddedTasks returns the value that was added to the tasks field in this mutation.
+func (m *SystemSummaryMutation) AddedTasks() (r int, exists bool) {
+	v := m.addtasks
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetTasks reset all changes of the "tasks" field.
+func (m *SystemSummaryMutation) ResetTasks() {
+	m.tasks = nil
+	m.addtasks = nil
+}
+
+// SetActiveTasks sets the active_tasks field.
+func (m *SystemSummaryMutation) SetActiveTasks(i int) {
+	m.active_tasks = &i
+	m.addactive_tasks = nil
+}
+
+// ActiveTasks returns the active_tasks value in the mutation.
+func (m *SystemSummaryMutation) ActiveTasks() (r int, exists bool) {
+	v := m.active_tasks
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldActiveTasks returns the old active_tasks value of the SystemSummary.
+// If the SystemSummary object wasn't provided to the builder, the object is fetched
+// from the database.
+// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+func (m *SystemSummaryMutation) OldActiveTasks(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldActiveTasks is allowed only on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldActiveTasks requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldActiveTasks: %w", err)
+	}
+	return oldValue.ActiveTasks, nil
+}
+
+// AddActiveTasks adds i to active_tasks.
+func (m *SystemSummaryMutation) AddActiveTasks(i int) {
+	if m.addactive_tasks != nil {
+		*m.addactive_tasks += i
+	} else {
+		m.addactive_tasks = &i
+	}
+}
+
+// AddedActiveTasks returns the value that was added to the active_tasks field in this mutation.
+func (m *SystemSummaryMutation) AddedActiveTasks() (r int, exists bool) {
+	v := m.addactive_tasks
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetActiveTasks reset all changes of the "active_tasks" field.
+func (m *SystemSummaryMutation) ResetActiveTasks() {
+	m.active_tasks = nil
+	m.addactive_tasks = nil
+}
+
+// SetItems sets the items field.
+func (m *SystemSummaryMutation) SetItems(i int) {
+	m.items = &i
+	m.additems = nil
+}
+
+// Items returns the items value in the mutation.
+func (m *SystemSummaryMutation) Items() (r int, exists bool) {
+	v := m.items
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldItems returns the old items value of the SystemSummary.
+// If the SystemSummary object wasn't provided to the builder, the object is fetched
+// from the database.
+// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+func (m *SystemSummaryMutation) OldItems(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldItems is allowed only on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldItems requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldItems: %w", err)
+	}
+	return oldValue.Items, nil
+}
+
+// AddItems adds i to items.
+func (m *SystemSummaryMutation) AddItems(i int) {
+	if m.additems != nil {
+		*m.additems += i
+	} else {
+		m.additems = &i
+	}
+}
+
+// AddedItems returns the value that was added to the items field in this mutation.
+func (m *SystemSummaryMutation) AddedItems() (r int, exists bool) {
+	v := m.additems
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetItems reset all changes of the "items" field.
+func (m *SystemSummaryMutation) ResetItems() {
+	m.items = nil
+	m.additems = nil
+}
+
+// SetAvgItemsPerTask sets the avg_items_per_task field.
+func (m *SystemSummaryMutation) SetAvgItemsPerTask(f float64) {
+	m.avg_items_per_task = &f
+	m.addavg_items_per_task = nil
+}
+
+// AvgItemsPerTask returns the avg_items_per_task value in the mutation.
+func (m *SystemSummaryMutation) AvgItemsPerTask() (r float64, exists bool) {
+	v := m.avg_items_per_task
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAvgItemsPerTask returns the old avg_items_per_task value of the SystemSummary.
+// If the SystemSummary object wasn't provided to the builder, the object is fetched
+// from the database.
+// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+func (m *SystemSummaryMutation) OldAvgItemsPerTask(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldAvgItemsPerTask is allowed only on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldAvgItemsPerTask requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAvgItemsPerTask: %w", err)
+	}
+	return oldValue.AvgItemsPerTask, nil
+}
+
+// AddAvgItemsPerTask adds f to avg_items_per_task.
+func (m *SystemSummaryMutation) AddAvgItemsPerTask(f float64) {
+	if m.addavg_items_per_task != nil {
+		*m.addavg_items_per_task += f
+	} else {
+		m.addavg_items_per_task = &f
+	}
+}
+
+// AddedAvgItemsPerTask returns the value that was added to the avg_items_per_task field in this mutation.
+func (m *SystemSummaryMutation) AddedAvgItemsPerTask() (r float64, exists bool) {
+	v := m.addavg_items_per_task
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetAvgItemsPerTask reset all changes of the "avg_items_per_task" field.
+func (m *SystemSummaryMutation) ResetAvgItemsPerTask() {
+	m.avg_items_per_task = nil
+	m.addavg_items_per_task = nil
+}
+
+// Op returns the operation name.
+func (m *SystemSummaryMutation) Op() Op {
+	return m.op
+}
+
+// Type returns the node type of this mutation (SystemSummary).
+func (m *SystemSummaryMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during
+// this mutation. Note that, in order to get all numeric
+// fields that were in/decremented, call AddedFields().
+func (m *SystemSummaryMutation) Fields() []string {
+	fields := make([]string, 0, 6)
+	if m.create_time != nil {
+		fields = append(fields, systemsummary.FieldCreateTime)
+	}
+	if m.users != nil {
+		fields = append(fields, systemsummary.FieldUsers)
+	}
+	if m.tasks != nil {
+		fields = append(fields, systemsummary.FieldTasks)
+	}
+	if m.active_tasks != nil {
+		fields = append(fields, systemsummary.FieldActiveTasks)
+	}
+	if m.items != nil {
+		fields = append(fields, systemsummary.FieldItems)
+	}
+	if m.avg_items_per_task != nil {
+		fields = append(fields, systemsummary.FieldAvgItemsPerTask)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name.
+// The second boolean value indicates that this field was
+// not set, or was not define in the schema.
+func (m *SystemSummaryMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case systemsummary.FieldCreateTime:
+		return m.CreateTime()
+	case systemsummary.FieldUsers:
+		return m.Users()
+	case systemsummary.FieldTasks:
+		return m.Tasks()
+	case systemsummary.FieldActiveTasks:
+		return m.ActiveTasks()
+	case systemsummary.FieldItems:
+		return m.Items()
+	case systemsummary.FieldAvgItemsPerTask:
+		return m.AvgItemsPerTask()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database.
+// An error is returned if the mutation operation is not UpdateOne,
+// or the query to the database was failed.
+func (m *SystemSummaryMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case systemsummary.FieldCreateTime:
+		return m.OldCreateTime(ctx)
+	case systemsummary.FieldUsers:
+		return m.OldUsers(ctx)
+	case systemsummary.FieldTasks:
+		return m.OldTasks(ctx)
+	case systemsummary.FieldActiveTasks:
+		return m.OldActiveTasks(ctx)
+	case systemsummary.FieldItems:
+		return m.OldItems(ctx)
+	case systemsummary.FieldAvgItemsPerTask:
+		return m.OldAvgItemsPerTask(ctx)
+	}
+	return nil, fmt.Errorf("unknown SystemSummary field %s", name)
+}
+
+// SetField sets the value for the given name. It returns an
+// error if the field is not defined in the schema, or if the
+// type mismatch the field type.
+func (m *SystemSummaryMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case systemsummary.FieldCreateTime:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreateTime(v)
+		return nil
+	case systemsummary.FieldUsers:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUsers(v)
+		return nil
+	case systemsummary.FieldTasks:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTasks(v)
+		return nil
+	case systemsummary.FieldActiveTasks:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetActiveTasks(v)
+		return nil
+	case systemsummary.FieldItems:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetItems(v)
+		return nil
+	case systemsummary.FieldAvgItemsPerTask:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAvgItemsPerTask(v)
+		return nil
+	}
+	return fmt.Errorf("unknown SystemSummary field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented
+// or decremented during this mutation.
+func (m *SystemSummaryMutation) AddedFields() []string {
+	var fields []string
+	if m.addusers != nil {
+		fields = append(fields, systemsummary.FieldUsers)
+	}
+	if m.addtasks != nil {
+		fields = append(fields, systemsummary.FieldTasks)
+	}
+	if m.addactive_tasks != nil {
+		fields = append(fields, systemsummary.FieldActiveTasks)
+	}
+	if m.additems != nil {
+		fields = append(fields, systemsummary.FieldItems)
+	}
+	if m.addavg_items_per_task != nil {
+		fields = append(fields, systemsummary.FieldAvgItemsPerTask)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was in/decremented
+// from a field with the given name. The second value indicates
+// that this field was not set, or was not define in the schema.
+func (m *SystemSummaryMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case systemsummary.FieldUsers:
+		return m.AddedUsers()
+	case systemsummary.FieldTasks:
+		return m.AddedTasks()
+	case systemsummary.FieldActiveTasks:
+		return m.AddedActiveTasks()
+	case systemsummary.FieldItems:
+		return m.AddedItems()
+	case systemsummary.FieldAvgItemsPerTask:
+		return m.AddedAvgItemsPerTask()
+	}
+	return nil, false
+}
+
+// AddField adds the value for the given name. It returns an
+// error if the field is not defined in the schema, or if the
+// type mismatch the field type.
+func (m *SystemSummaryMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case systemsummary.FieldUsers:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddUsers(v)
+		return nil
+	case systemsummary.FieldTasks:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddTasks(v)
+		return nil
+	case systemsummary.FieldActiveTasks:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddActiveTasks(v)
+		return nil
+	case systemsummary.FieldItems:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddItems(v)
+		return nil
+	case systemsummary.FieldAvgItemsPerTask:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddAvgItemsPerTask(v)
+		return nil
+	}
+	return fmt.Errorf("unknown SystemSummary numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared
+// during this mutation.
+func (m *SystemSummaryMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicates if this field was
+// cleared in this mutation.
+func (m *SystemSummaryMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value for the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *SystemSummaryMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown SystemSummary nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation regarding the
+// given field name. It returns an error if the field is not
+// defined in the schema.
+func (m *SystemSummaryMutation) ResetField(name string) error {
+	switch name {
+	case systemsummary.FieldCreateTime:
+		m.ResetCreateTime()
+		return nil
+	case systemsummary.FieldUsers:
+		m.ResetUsers()
+		return nil
+	case systemsummary.FieldTasks:
+		m.ResetTasks()
+		return nil
+	case systemsummary.FieldActiveTasks:
+		m.ResetActiveTasks()
+		return nil
+	case systemsummary.FieldItems:
+		m.ResetItems()
+		return nil
+	case systemsummary.FieldAvgItemsPerTask:
+		m.ResetAvgItemsPerTask()
+		return nil
+	}
+	return fmt.Errorf("unknown SystemSummary field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this
+// mutation.
+func (m *SystemSummaryMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all ids (to other nodes) that were added for
+// the given edge name.
+func (m *SystemSummaryMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this
+// mutation.
+func (m *SystemSummaryMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all ids (to other nodes) that were removed for
+// the given edge name.
+func (m *SystemSummaryMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this
+// mutation.
+func (m *SystemSummaryMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean indicates if this edge was
+// cleared in this mutation.
+func (m *SystemSummaryMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value for the given name. It returns an
+// error if the edge name is not defined in the schema.
+func (m *SystemSummaryMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown SystemSummary unique edge %s", name)
+}
+
+// ResetEdge resets all changes in the mutation regarding the
+// given edge name. It returns an error if the edge is not
+// defined in the schema.
+func (m *SystemSummaryMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown SystemSummary edge %s", name)
 }
 
 // TaskMutation represents an operation that mutate the Tasks
