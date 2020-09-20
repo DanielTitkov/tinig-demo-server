@@ -17,10 +17,8 @@ type (
 		Slug        string
 		Title       string
 		Description string
-	}
-	TaskWithItems struct {
-		Task
-		Items []Item
+		Active      bool
+		Items       []Item
 	}
 	TaskType struct {
 		ID   int

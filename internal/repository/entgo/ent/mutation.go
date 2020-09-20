@@ -649,6 +649,8 @@ type TaskMutation struct {
 	title         *string
 	description   *string
 	code          *string
+	active        *bool
+	delete_time   *time.Time
 	clearedFields map[string]struct{}
 	items         map[int]struct{}
 	removeditems  map[int]struct{}
@@ -974,6 +976,93 @@ func (m *TaskMutation) ResetCode() {
 	m.code = nil
 }
 
+// SetActive sets the active field.
+func (m *TaskMutation) SetActive(b bool) {
+	m.active = &b
+}
+
+// Active returns the active value in the mutation.
+func (m *TaskMutation) Active() (r bool, exists bool) {
+	v := m.active
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldActive returns the old active value of the Task.
+// If the Task object wasn't provided to the builder, the object is fetched
+// from the database.
+// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+func (m *TaskMutation) OldActive(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldActive is allowed only on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldActive requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldActive: %w", err)
+	}
+	return oldValue.Active, nil
+}
+
+// ResetActive reset all changes of the "active" field.
+func (m *TaskMutation) ResetActive() {
+	m.active = nil
+}
+
+// SetDeleteTime sets the delete_time field.
+func (m *TaskMutation) SetDeleteTime(t time.Time) {
+	m.delete_time = &t
+}
+
+// DeleteTime returns the delete_time value in the mutation.
+func (m *TaskMutation) DeleteTime() (r time.Time, exists bool) {
+	v := m.delete_time
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeleteTime returns the old delete_time value of the Task.
+// If the Task object wasn't provided to the builder, the object is fetched
+// from the database.
+// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+func (m *TaskMutation) OldDeleteTime(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldDeleteTime is allowed only on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldDeleteTime requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeleteTime: %w", err)
+	}
+	return oldValue.DeleteTime, nil
+}
+
+// ClearDeleteTime clears the value of delete_time.
+func (m *TaskMutation) ClearDeleteTime() {
+	m.delete_time = nil
+	m.clearedFields[task.FieldDeleteTime] = struct{}{}
+}
+
+// DeleteTimeCleared returns if the field delete_time was cleared in this mutation.
+func (m *TaskMutation) DeleteTimeCleared() bool {
+	_, ok := m.clearedFields[task.FieldDeleteTime]
+	return ok
+}
+
+// ResetDeleteTime reset all changes of the "delete_time" field.
+func (m *TaskMutation) ResetDeleteTime() {
+	m.delete_time = nil
+	delete(m.clearedFields, task.FieldDeleteTime)
+}
+
 // AddItemIDs adds the items edge to Item by ids.
 func (m *TaskMutation) AddItemIDs(ids ...int) {
 	if m.items == nil {
@@ -1108,7 +1197,7 @@ func (m *TaskMutation) Type() string {
 // this mutation. Note that, in order to get all numeric
 // fields that were in/decremented, call AddedFields().
 func (m *TaskMutation) Fields() []string {
-	fields := make([]string, 0, 6)
+	fields := make([]string, 0, 8)
 	if m.create_time != nil {
 		fields = append(fields, task.FieldCreateTime)
 	}
@@ -1126,6 +1215,12 @@ func (m *TaskMutation) Fields() []string {
 	}
 	if m.code != nil {
 		fields = append(fields, task.FieldCode)
+	}
+	if m.active != nil {
+		fields = append(fields, task.FieldActive)
+	}
+	if m.delete_time != nil {
+		fields = append(fields, task.FieldDeleteTime)
 	}
 	return fields
 }
@@ -1147,6 +1242,10 @@ func (m *TaskMutation) Field(name string) (ent.Value, bool) {
 		return m.Description()
 	case task.FieldCode:
 		return m.Code()
+	case task.FieldActive:
+		return m.Active()
+	case task.FieldDeleteTime:
+		return m.DeleteTime()
 	}
 	return nil, false
 }
@@ -1168,6 +1267,10 @@ func (m *TaskMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldDescription(ctx)
 	case task.FieldCode:
 		return m.OldCode(ctx)
+	case task.FieldActive:
+		return m.OldActive(ctx)
+	case task.FieldDeleteTime:
+		return m.OldDeleteTime(ctx)
 	}
 	return nil, fmt.Errorf("unknown Task field %s", name)
 }
@@ -1219,6 +1322,20 @@ func (m *TaskMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetCode(v)
 		return nil
+	case task.FieldActive:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetActive(v)
+		return nil
+	case task.FieldDeleteTime:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeleteTime(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Task field %s", name)
 }
@@ -1252,6 +1369,9 @@ func (m *TaskMutation) ClearedFields() []string {
 	if m.FieldCleared(task.FieldDescription) {
 		fields = append(fields, task.FieldDescription)
 	}
+	if m.FieldCleared(task.FieldDeleteTime) {
+		fields = append(fields, task.FieldDeleteTime)
+	}
 	return fields
 }
 
@@ -1268,6 +1388,9 @@ func (m *TaskMutation) ClearField(name string) error {
 	switch name {
 	case task.FieldDescription:
 		m.ClearDescription()
+		return nil
+	case task.FieldDeleteTime:
+		m.ClearDeleteTime()
 		return nil
 	}
 	return fmt.Errorf("unknown Task nullable field %s", name)
@@ -1295,6 +1418,12 @@ func (m *TaskMutation) ResetField(name string) error {
 		return nil
 	case task.FieldCode:
 		m.ResetCode()
+		return nil
+	case task.FieldActive:
+		m.ResetActive()
+		return nil
+	case task.FieldDeleteTime:
+		m.ResetDeleteTime()
 		return nil
 	}
 	return fmt.Errorf("unknown Task field %s", name)

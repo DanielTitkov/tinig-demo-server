@@ -9,6 +9,10 @@ type (
 		Slug        string `json:"slug"`
 		Description string `json:"description"`
 	}
+	GetTasksRequest struct {
+		WithItems   bool `json:"withItems"`
+		Deactivated bool `json:"deactivated"`
+	}
 	GetTasksResponse struct {
 		Tasks []GetTasksResponseTask `json:"tasks"`
 	}
@@ -19,6 +23,7 @@ type (
 		Slug        string                 `json:"slug"`
 		Title       string                 `json:"title"`
 		Description string                 `json:"description"`
+		Active      bool                   `json:"active"`
 		Items       []GetTasksResponseItem `json:"items,omitempty"`
 	}
 	GetTasksResponseItem struct {

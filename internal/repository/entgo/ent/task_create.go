@@ -83,6 +83,34 @@ func (tc *TaskCreate) SetCode(s string) *TaskCreate {
 	return tc
 }
 
+// SetActive sets the active field.
+func (tc *TaskCreate) SetActive(b bool) *TaskCreate {
+	tc.mutation.SetActive(b)
+	return tc
+}
+
+// SetNillableActive sets the active field if the given value is not nil.
+func (tc *TaskCreate) SetNillableActive(b *bool) *TaskCreate {
+	if b != nil {
+		tc.SetActive(*b)
+	}
+	return tc
+}
+
+// SetDeleteTime sets the delete_time field.
+func (tc *TaskCreate) SetDeleteTime(t time.Time) *TaskCreate {
+	tc.mutation.SetDeleteTime(t)
+	return tc
+}
+
+// SetNillableDeleteTime sets the delete_time field if the given value is not nil.
+func (tc *TaskCreate) SetNillableDeleteTime(t *time.Time) *TaskCreate {
+	if t != nil {
+		tc.SetDeleteTime(*t)
+	}
+	return tc
+}
+
 // AddItemIDs adds the items edge to Item by ids.
 func (tc *TaskCreate) AddItemIDs(ids ...int) *TaskCreate {
 	tc.mutation.AddItemIDs(ids...)
@@ -199,6 +227,10 @@ func (tc *TaskCreate) preSave() error {
 			return &ValidationError{Name: "code", err: fmt.Errorf("ent: validator failed for field \"code\": %w", err)}
 		}
 	}
+	if _, ok := tc.mutation.Active(); !ok {
+		v := task.DefaultActive
+		tc.mutation.SetActive(v)
+	}
 	if _, ok := tc.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user", err: errors.New("ent: missing required edge \"user\"")}
 	}
@@ -279,6 +311,22 @@ func (tc *TaskCreate) createSpec() (*Task, *sqlgraph.CreateSpec) {
 			Column: task.FieldCode,
 		})
 		t.Code = value
+	}
+	if value, ok := tc.mutation.Active(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: task.FieldActive,
+		})
+		t.Active = value
+	}
+	if value, ok := tc.mutation.DeleteTime(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: task.FieldDeleteTime,
+		})
+		t.DeleteTime = value
 	}
 	if nodes := tc.mutation.ItemsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

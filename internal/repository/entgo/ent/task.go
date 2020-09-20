@@ -30,6 +30,10 @@ type Task struct {
 	Description string `json:"description,omitempty"`
 	// Code holds the value of the "code" field.
 	Code string `json:"code,omitempty"`
+	// Active holds the value of the "active" field.
+	Active bool `json:"active,omitempty"`
+	// DeleteTime holds the value of the "delete_time" field.
+	DeleteTime time.Time `json:"delete_time,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the TaskQuery when eager-loading is set.
 	Edges           TaskEdges `json:"edges"`
@@ -97,6 +101,8 @@ func (*Task) scanValues() []interface{} {
 		&sql.NullString{}, // title
 		&sql.NullString{}, // description
 		&sql.NullString{}, // code
+		&sql.NullBool{},   // active
+		&sql.NullTime{},   // delete_time
 	}
 }
 
@@ -150,7 +156,17 @@ func (t *Task) assignValues(values ...interface{}) error {
 	} else if value.Valid {
 		t.Code = value.String
 	}
-	values = values[6:]
+	if value, ok := values[6].(*sql.NullBool); !ok {
+		return fmt.Errorf("unexpected type %T for field active", values[6])
+	} else if value.Valid {
+		t.Active = value.Bool
+	}
+	if value, ok := values[7].(*sql.NullTime); !ok {
+		return fmt.Errorf("unexpected type %T for field delete_time", values[7])
+	} else if value.Valid {
+		t.DeleteTime = value.Time
+	}
+	values = values[8:]
 	if len(values) == len(task.ForeignKeys) {
 		if value, ok := values[0].(*sql.NullInt64); !ok {
 			return fmt.Errorf("unexpected type %T for edge-field task_type_tasks", value)
@@ -218,6 +234,10 @@ func (t *Task) String() string {
 	builder.WriteString(t.Description)
 	builder.WriteString(", code=")
 	builder.WriteString(t.Code)
+	builder.WriteString(", active=")
+	builder.WriteString(fmt.Sprintf("%v", t.Active))
+	builder.WriteString(", delete_time=")
+	builder.WriteString(t.DeleteTime.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

@@ -1,5 +1,5 @@
 package configs
 
 type TaskConfig struct {
-	ItemLimit int
+	ItemLimit int `yaml:"itemLimit"`
 }

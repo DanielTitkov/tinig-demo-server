@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/item"
 	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/predicate"
@@ -60,6 +61,40 @@ func (tu *TaskUpdate) SetNillableDescription(s *string) *TaskUpdate {
 // ClearDescription clears the value of description.
 func (tu *TaskUpdate) ClearDescription() *TaskUpdate {
 	tu.mutation.ClearDescription()
+	return tu
+}
+
+// SetActive sets the active field.
+func (tu *TaskUpdate) SetActive(b bool) *TaskUpdate {
+	tu.mutation.SetActive(b)
+	return tu
+}
+
+// SetNillableActive sets the active field if the given value is not nil.
+func (tu *TaskUpdate) SetNillableActive(b *bool) *TaskUpdate {
+	if b != nil {
+		tu.SetActive(*b)
+	}
+	return tu
+}
+
+// SetDeleteTime sets the delete_time field.
+func (tu *TaskUpdate) SetDeleteTime(t time.Time) *TaskUpdate {
+	tu.mutation.SetDeleteTime(t)
+	return tu
+}
+
+// SetNillableDeleteTime sets the delete_time field if the given value is not nil.
+func (tu *TaskUpdate) SetNillableDeleteTime(t *time.Time) *TaskUpdate {
+	if t != nil {
+		tu.SetDeleteTime(*t)
+	}
+	return tu
+}
+
+// ClearDeleteTime clears the value of delete_time.
+func (tu *TaskUpdate) ClearDeleteTime() *TaskUpdate {
+	tu.mutation.ClearDeleteTime()
 	return tu
 }
 
@@ -257,6 +292,26 @@ func (tu *TaskUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: task.FieldDescription,
 		})
 	}
+	if value, ok := tu.mutation.Active(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: task.FieldActive,
+		})
+	}
+	if value, ok := tu.mutation.DeleteTime(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: task.FieldDeleteTime,
+		})
+	}
+	if tu.mutation.DeleteTimeCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Column: task.FieldDeleteTime,
+		})
+	}
 	if nodes := tu.mutation.RemovedItemsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -412,6 +467,40 @@ func (tuo *TaskUpdateOne) SetNillableDescription(s *string) *TaskUpdateOne {
 // ClearDescription clears the value of description.
 func (tuo *TaskUpdateOne) ClearDescription() *TaskUpdateOne {
 	tuo.mutation.ClearDescription()
+	return tuo
+}
+
+// SetActive sets the active field.
+func (tuo *TaskUpdateOne) SetActive(b bool) *TaskUpdateOne {
+	tuo.mutation.SetActive(b)
+	return tuo
+}
+
+// SetNillableActive sets the active field if the given value is not nil.
+func (tuo *TaskUpdateOne) SetNillableActive(b *bool) *TaskUpdateOne {
+	if b != nil {
+		tuo.SetActive(*b)
+	}
+	return tuo
+}
+
+// SetDeleteTime sets the delete_time field.
+func (tuo *TaskUpdateOne) SetDeleteTime(t time.Time) *TaskUpdateOne {
+	tuo.mutation.SetDeleteTime(t)
+	return tuo
+}
+
+// SetNillableDeleteTime sets the delete_time field if the given value is not nil.
+func (tuo *TaskUpdateOne) SetNillableDeleteTime(t *time.Time) *TaskUpdateOne {
+	if t != nil {
+		tuo.SetDeleteTime(*t)
+	}
+	return tuo
+}
+
+// ClearDeleteTime clears the value of delete_time.
+func (tuo *TaskUpdateOne) ClearDeleteTime() *TaskUpdateOne {
+	tuo.mutation.ClearDeleteTime()
 	return tuo
 }
 
@@ -605,6 +694,26 @@ func (tuo *TaskUpdateOne) sqlSave(ctx context.Context) (t *Task, err error) {
 		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Column: task.FieldDescription,
+		})
+	}
+	if value, ok := tuo.mutation.Active(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: task.FieldActive,
+		})
+	}
+	if value, ok := tuo.mutation.DeleteTime(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: task.FieldDeleteTime,
+		})
+	}
+	if tuo.mutation.DeleteTimeCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Column: task.FieldDeleteTime,
 		})
 	}
 	if nodes := tuo.mutation.RemovedItemsIDs(); len(nodes) > 0 {

@@ -64,6 +64,10 @@ func init() {
 	taskDescCode := taskFields[3].Descriptor()
 	// task.CodeValidator is a validator for the "code" field. It is called by the builders before save.
 	task.CodeValidator = taskDescCode.Validators[0].(func(string) error)
+	// taskDescActive is the schema descriptor for active field.
+	taskDescActive := taskFields[4].Descriptor()
+	// task.DefaultActive holds the default value on creation for the active field.
+	task.DefaultActive = taskDescActive.Default.(bool)
 	tasktypeFields := schema.TaskType{}.Fields()
 	_ = tasktypeFields
 	// tasktypeDescCode is the schema descriptor for code field.

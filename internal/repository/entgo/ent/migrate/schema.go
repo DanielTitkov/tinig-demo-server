@@ -42,6 +42,8 @@ var (
 		{Name: "title", Type: field.TypeString},
 		{Name: "description", Type: field.TypeString, Nullable: true},
 		{Name: "code", Type: field.TypeString, Unique: true},
+		{Name: "active", Type: field.TypeBool},
+		{Name: "delete_time", Type: field.TypeTime, Nullable: true},
 		{Name: "task_type_tasks", Type: field.TypeInt, Nullable: true},
 		{Name: "user_tasks", Type: field.TypeInt, Nullable: true},
 	}
@@ -53,14 +55,14 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:  "tasks_task_types_tasks",
-				Columns: []*schema.Column{TasksColumns[7]},
+				Columns: []*schema.Column{TasksColumns[9]},
 
 				RefColumns: []*schema.Column{TaskTypesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:  "tasks_users_tasks",
-				Columns: []*schema.Column{TasksColumns[8]},
+				Columns: []*schema.Column{TasksColumns[10]},
 
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.SetNull,
@@ -70,12 +72,12 @@ var (
 			{
 				Name:    "task_slug_user_tasks",
 				Unique:  true,
-				Columns: []*schema.Column{TasksColumns[3], TasksColumns[8]},
+				Columns: []*schema.Column{TasksColumns[3], TasksColumns[10]},
 			},
 			{
 				Name:    "task_title_user_tasks",
 				Unique:  true,
-				Columns: []*schema.Column{TasksColumns[4], TasksColumns[8]},
+				Columns: []*schema.Column{TasksColumns[4], TasksColumns[10]},
 			},
 		},
 	}

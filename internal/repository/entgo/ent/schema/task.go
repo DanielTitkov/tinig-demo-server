@@ -22,6 +22,8 @@ func (Task) Fields() []ent.Field {
 		field.String("title").NotEmpty(),
 		field.String("description").Optional(),
 		field.String("code").NotEmpty().Unique().Immutable(),
+		field.Bool("active").Default(false),
+		field.Time("delete_time").Optional(),
 	}
 }
 

@@ -23,6 +23,10 @@ const (
 	FieldDescription = "description"
 	// FieldCode holds the string denoting the code field in the database.
 	FieldCode = "code"
+	// FieldActive holds the string denoting the active field in the database.
+	FieldActive = "active"
+	// FieldDeleteTime holds the string denoting the delete_time field in the database.
+	FieldDeleteTime = "delete_time"
 
 	// EdgeItems holds the string denoting the items edge name in mutations.
 	EdgeItems = "items"
@@ -65,6 +69,8 @@ var Columns = []string{
 	FieldTitle,
 	FieldDescription,
 	FieldCode,
+	FieldActive,
+	FieldDeleteTime,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the Task type.
@@ -86,4 +92,6 @@ var (
 	TitleValidator func(string) error
 	// CodeValidator is a validator for the "code" field. It is called by the builders before save.
 	CodeValidator func(string) error
+	// DefaultActive holds the default value on creation for the active field.
+	DefaultActive bool
 )

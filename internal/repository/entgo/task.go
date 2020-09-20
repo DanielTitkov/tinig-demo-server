@@ -2,10 +2,10 @@ package entgo
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/DanielTitkov/tinig-demo-server/internal/domain"
 	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent"
+	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/item"
 	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/task"
 	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/tasktype"
 	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/user"
@@ -71,26 +71,29 @@ func (r *EntgoRepository) GetTaskTypeByCode(code string) (*domain.TaskType, erro
 	}, nil
 }
 
-func (r *EntgoRepository) GetTasksWithItems(u *domain.User, itemLimit int) ([]*domain.TaskWithItems, error) {
-	tasks, err := r.client.User.
+func (r *EntgoRepository) GetTasks(u *domain.User, itemLimit int, deactivated bool) ([]*domain.Task, error) {
+	taskBaseQuery := r.client.User.
 		Query().
 		Where(user.UsernameEQ(u.Username)).
 		QueryTasks().
-		WithType().
-		WithItems(func(q *ent.ItemQuery) {
-			q.Limit(1)
-		}).
-		All(context.Background())
+		Where(task.ActiveEQ(!deactivated)).
+		WithType()
+	taskQuery := taskBaseQuery
+	if itemLimit > 0 {
+		taskQuery = taskBaseQuery.
+			WithItems(func(q *ent.ItemQuery) {
+				q.Order(ent.Desc(item.FieldCreateTime))
+				q.Limit(itemLimit)
+			})
+	}
+	tasks, err := taskQuery.All(context.Background())
 	if err != nil {
 		return nil, err
 	}
 
-	fmt.Printf("%+v", tasks)
-
-	var res []*domain.TaskWithItems
+	var res []*domain.Task
 	for _, t := range tasks {
 		var items []domain.Item
-		fmt.Printf("%+v", t.Edges.Items)
 		for _, i := range t.Edges.Items {
 			if i.Data == nil {
 				continue // items without data don't matter
@@ -104,44 +107,16 @@ func (r *EntgoRepository) GetTasksWithItems(u *domain.User, itemLimit int) ([]*d
 			})
 		}
 
-		res = append(res, &domain.TaskWithItems{
-			Task: domain.Task{ // TODO: maybe use pointer
-				ID:          t.ID,
-				Code:        t.Code,
-				Slug:        t.Slug,
-				Title:       t.Title,
-				Description: t.Description,
-				Type:        t.Edges.Type.Code,
-				User:        u.Username,
-			},
-			Items: items,
-		})
-	}
-
-	return res, nil
-}
-
-func (r *EntgoRepository) GetTasks(u *domain.User) ([]*domain.Task, error) {
-	tasks, err := r.client.User.
-		Query().
-		Where(user.UsernameEQ(u.Username)).
-		QueryTasks().
-		WithType().
-		All(context.Background())
-	if err != nil {
-		return nil, err
-	}
-
-	var res []*domain.Task
-	for _, t := range tasks {
-		res = append(res, &domain.Task{
+		res = append(res, &domain.Task{ // TODO: maybe use pointer
 			ID:          t.ID,
 			Code:        t.Code,
 			Slug:        t.Slug,
 			Title:       t.Title,
 			Description: t.Description,
 			Type:        t.Edges.Type.Code,
+			Active:      t.Active,
 			User:        u.Username,
+			Items:       items,
 		})
 	}
 
