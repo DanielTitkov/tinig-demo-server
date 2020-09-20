@@ -7,3 +7,5 @@ server:
 auth:
   exp: 72 # hours
   secret: secret-key
+task:
+  itemLimit: 2

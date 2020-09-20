@@ -10,6 +10,7 @@ type Config struct {
 	Auth   AuthConfig
 	DB     DBConfig
 	Server ServerConfig
+	Task   TaskConfig
 }
 
 func ReadConfigs(path string) (Config, error) {

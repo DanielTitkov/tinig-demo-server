@@ -29,3 +29,21 @@ func (a *App) CreateTask(t *domain.Task) error {
 
 	return nil
 }
+
+func (a *App) GetTasks(u *domain.User) ([]*domain.Task, error) {
+	u, err := a.repo.GetUserByUsername(u.Username)
+	if err != nil {
+		return nil, err
+	}
+
+	return a.repo.GetTasks(u)
+}
+
+func (a *App) GetTasksWithItems(u *domain.User) ([]*domain.TaskWithItems, error) {
+	u, err := a.repo.GetUserByUsername(u.Username)
+	if err != nil {
+		return nil, err
+	}
+
+	return a.repo.GetTasksWithItems(u, a.cfg.Task.ItemLimit)
+}

@@ -18,6 +18,10 @@ type (
 		Title       string
 		Description string
 	}
+	TaskWithItems struct {
+		Task
+		Items []Item
+	}
 	TaskType struct {
 		ID   int
 		Code string

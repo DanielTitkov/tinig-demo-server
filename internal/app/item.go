@@ -28,7 +28,7 @@ func (a *App) CreateItem(i *domain.Item) error {
 	return nil
 }
 
-func hashFromBytes(b []byte) string {
+func hashFromBytes(b []byte) string { // TODO: maybe move to utils or smth
 	hasher := md5.New()
 	hasher.Write(b)
 	return hex.EncodeToString(hasher.Sum(nil))

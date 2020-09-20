@@ -19,6 +19,8 @@ type (
 		CreateUser(*domain.User) (*domain.User, error)
 		CreateTask(*domain.Task, *domain.User, *domain.TaskType) (*domain.Task, error)
 		CreateItem(*domain.Item, *domain.Task) (*domain.Item, error)
+		GetTasksWithItems(u *domain.User, itemLimit int) ([]*domain.TaskWithItems, error)
+		GetTasks(u *domain.User) ([]*domain.Task, error)
 	}
 )
 

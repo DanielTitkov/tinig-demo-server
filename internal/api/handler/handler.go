@@ -39,4 +39,6 @@ func (h *Handler) link(e *echo.Echo) {
 	restricted.POST("/getUser", h.GetUserHandler)
 	restricted.POST("/createTask", h.CreateTaskHandler)
 	restricted.POST("/createItem", h.CreateItemHandler)
+	restricted.POST("/getTasks", h.GetTasks)
+	restricted.POST("/getTasksWithItems", h.GetTasksWithItems)
 }

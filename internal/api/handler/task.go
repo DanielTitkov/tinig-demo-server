@@ -42,3 +42,74 @@ func (h *Handler) CreateTaskHandler(c echo.Context) error {
 		Message: "task created",
 	})
 }
+
+func (h *Handler) GetTasks(c echo.Context) error {
+	username, err := util.UsernameFromToken(c)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, model.ErrorResponse{
+			Message: "token is invalid",
+			Error:   err.Error(),
+		})
+	}
+
+	tasks, err := h.app.GetTasks(&domain.User{Username: username})
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, model.ErrorResponse{
+			Message: "failed to get user tasks",
+			Error:   err.Error(),
+		})
+	}
+
+	var resp model.GetTasksResponse
+	for _, t := range tasks {
+		resp.Tasks = append(resp.Tasks, model.GetTasksResponseTask{
+			Code:        t.Code,
+			Type:        t.Type,
+			Slug:        t.Slug,
+			Title:       t.Title,
+			Description: t.Description,
+		})
+	}
+
+	return c.JSON(http.StatusOK, resp)
+}
+
+func (h *Handler) GetTasksWithItems(c echo.Context) error {
+	username, err := util.UsernameFromToken(c)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, model.ErrorResponse{
+			Message: "token is invalid",
+			Error:   err.Error(),
+		})
+	}
+
+	tasks, err := h.app.GetTasksWithItems(&domain.User{Username: username})
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, model.ErrorResponse{
+			Message: "failed to get user tasks",
+			Error:   err.Error(),
+		})
+	}
+
+	var resp model.GetTasksResponse
+	for _, t := range tasks {
+		var items []model.GetTasksResponseItem
+		for _, i := range t.Items {
+			items = append(items, model.GetTasksResponseItem{
+				Source: i.Source,
+				Data:   i.Data,
+			})
+		}
+
+		resp.Tasks = append(resp.Tasks, model.GetTasksResponseTask{
+			Code:        t.Code,
+			Type:        t.Type,
+			Slug:        t.Slug,
+			Title:       t.Title,
+			Description: t.Description,
+			Items:       items,
+		})
+	}
+
+	return c.JSON(http.StatusOK, resp)
+}
