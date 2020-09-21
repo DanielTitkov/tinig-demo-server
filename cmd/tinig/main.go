@@ -45,7 +45,7 @@ func main() {
 	go func() {
 		for {
 			app.CreateSystemSummary()
-			time.Sleep(10 * time.Second)
+			time.Sleep(5 * time.Minute)
 			logger.Info("calculated system summary", "")
 		}
 	}()

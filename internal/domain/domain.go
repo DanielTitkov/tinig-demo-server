@@ -34,12 +34,17 @@ type (
 		Data   ItemData
 	}
 	ItemData struct {
+		// for task type price
 		Price    float64 `json:"price,omitempty"`
+		PriceMax float64 `json:"priceMax,omitempty"`
+		PriceMin float64 `json:"priceMin,omitempty"`
 		Product  string  `json:"product,omitempty"`
 		Seller   string  `json:"seller,omitempty"`
-		Word     string  `json:"word,omitempty"`
-		Rate     float64 `json:"rate,omitempty"`
-		Platform string  `json:"platform,omitempty"`
+		// for task type word
+		Word string  `json:"word,omitempty"`
+		Rate float64 `json:"rate,omitempty"`
+		// common
+		Platform string `json:"platform,omitempty"`
 	}
 	SystemSymmary struct {
 		ID              int

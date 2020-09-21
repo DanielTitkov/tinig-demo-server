@@ -8,4 +8,4 @@ auth:
   exp: 72 # hours
   secret: secret-key
 task:
-  itemLimit: 2
+  itemLimit: 10
