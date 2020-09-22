@@ -9,6 +9,7 @@ import (
 	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/task"
 	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/tasktype"
 	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/user"
+	"github.com/bradfitz/slice"
 )
 
 func (r *EntgoRepository) CreateTask(t *domain.Task, u *domain.User, tt *domain.TaskType) (*domain.Task, error) {
@@ -139,6 +140,10 @@ func (r *EntgoRepository) GetTasksWithItems(u *domain.User, itemLimit int, deact
 				CreateTime: i.CreateTime,
 			})
 		}
+
+		slice.Sort(items, func(i, j int) bool {
+			return items[j].CreateTime.After(items[i].CreateTime)
+		})
 
 		res = append(res, &domain.Task{ // TODO: maybe use pointer
 			ID:          t.ID,
