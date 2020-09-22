@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 
 	"github.com/DanielTitkov/tinig-demo-server/internal/domain"
 )
@@ -25,6 +26,28 @@ func (a *App) CreateItem(i *domain.Item) error {
 		return err
 	}
 
+	return nil
+}
+
+func (a *App) ValidateItemData(taskCode string, data *domain.ItemData) error {
+	task, err := a.repo.GetTaskByCode(taskCode)
+	if err != nil {
+		return err
+	}
+
+	taskType := task.Type
+	switch taskType {
+	case domain.TaskTypeRandom:
+		if data.Value == 0 {
+			return errors.New("value is required for task type " + taskType)
+		}
+	case domain.TaskTypePrice:
+		if data.Price == 0 {
+			return errors.New("price is required for task type " + taskType)
+		}
+	default:
+		return errors.New("got unsupported task type: " + taskType)
+	}
 	return nil
 }
 

@@ -2,6 +2,11 @@ package domain
 
 import "time"
 
+const (
+	TaskTypeRandom = "random"
+	TaskTypePrice  = "price"
+)
+
 type (
 	User struct {
 		ID           int  // id is passed to domain model for simplicity
@@ -34,6 +39,8 @@ type (
 		Data   ItemData
 	}
 	ItemData struct {
+		// fot task type random
+		Value int `json:"value"`
 		// for task type price
 		Price    float64 `json:"price,omitempty"`
 		PriceMax float64 `json:"priceMax,omitempty"`

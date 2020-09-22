@@ -41,6 +41,7 @@ func (r *EntgoRepository) GetTaskByCode(code string) (*domain.Task, error) {
 		Query().
 		Where(task.CodeEQ(code)).
 		WithUser().
+		WithType().
 		Only(context.Background())
 	if err != nil {
 		return nil, err
@@ -53,6 +54,7 @@ func (r *EntgoRepository) GetTaskByCode(code string) (*domain.Task, error) {
 		Slug:        task.Slug,
 		Description: task.Description,
 		User:        task.Edges.User.Username,
+		Type:        task.Edges.Type.Code,
 	}, nil
 }
 
