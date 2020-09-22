@@ -1,6 +1,10 @@
 package model
 
-import "github.com/DanielTitkov/tinig-demo-server/internal/domain"
+import (
+	"time"
+
+	"github.com/DanielTitkov/tinig-demo-server/internal/domain"
+)
 
 type (
 	CreateTaskRequest struct {
@@ -27,7 +31,8 @@ type (
 		Items       []GetTasksResponseItem `json:"items,omitempty"`
 	}
 	GetTasksResponseItem struct {
-		Source string          `json:"source"`
-		Data   domain.ItemData `json:"data"`
+		Source     string          `json:"source"`
+		CreateTime time.Time       `json:"createTime"`
+		Data       domain.ItemData `json:"data"`
 	}
 )

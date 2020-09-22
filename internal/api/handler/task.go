@@ -70,8 +70,9 @@ func (h *Handler) GetTasks(c echo.Context) error {
 		var items []model.GetTasksResponseItem
 		for _, i := range t.Items {
 			items = append(items, model.GetTasksResponseItem{
-				Source: i.Source,
-				Data:   i.Data,
+				Source:     i.Source,
+				CreateTime: i.CreateTime,
+				Data:       i.Data,
 			})
 		}
 

@@ -32,11 +32,12 @@ type (
 		Code string
 	}
 	Item struct {
-		ID     int
-		Hash   string
-		Source string
-		Task   string // task code (from external system)
-		Data   ItemData
+		ID         int
+		Hash       string
+		Source     string
+		Task       string // task code (from external system)
+		Data       ItemData
+		CreateTime time.Time
 	}
 	ItemData struct {
 		// fot task type random

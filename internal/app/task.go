@@ -41,5 +41,5 @@ func (a *App) GetTasks(u *domain.User, withItems bool, deactivated bool) ([]*dom
 		itemLimit = a.cfg.Task.ItemLimit
 	}
 
-	return a.repo.GetTasks(u, itemLimit, deactivated)
+	return a.repo.GetTasksWithItems(u, itemLimit, deactivated)
 }

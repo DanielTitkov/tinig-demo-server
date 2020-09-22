@@ -73,39 +73,70 @@ func (r *EntgoRepository) GetTaskTypeByCode(code string) (*domain.TaskType, erro
 	}, nil
 }
 
-func (r *EntgoRepository) GetTasks(u *domain.User, itemLimit int, deactivated bool) ([]*domain.Task, error) {
-	taskBaseQuery := r.client.User.
+func (r *EntgoRepository) GetTasks(u *domain.User, deactivated bool) ([]*domain.Task, error) {
+	tasks, err := r.client.User.
 		Query().
 		Where(user.UsernameEQ(u.Username)).
 		QueryTasks().
 		Where(task.ActiveEQ(!deactivated)).
-		WithType()
-	taskQuery := taskBaseQuery
-	if itemLimit > 0 {
-		taskQuery = taskBaseQuery.
-			WithItems(func(q *ent.ItemQuery) {
-				q.Order(ent.Desc(item.FieldCreateTime))
-				q.Limit(itemLimit)
-			})
-	}
-	tasks, err := taskQuery.All(context.Background())
+		WithType().
+		All(context.Background())
 	if err != nil {
 		return nil, err
 	}
 
 	var res []*domain.Task
 	for _, t := range tasks {
+		res = append(res, &domain.Task{ // TODO: maybe use pointer
+			ID:          t.ID,
+			Code:        t.Code,
+			Slug:        t.Slug,
+			Title:       t.Title,
+			Description: t.Description,
+			Type:        t.Edges.Type.Code,
+			Active:      t.Active,
+			User:        u.Username,
+		})
+	}
+
+	return res, nil
+}
+
+func (r *EntgoRepository) GetTasksWithItems(u *domain.User, itemLimit int, deactivated bool) ([]*domain.Task, error) {
+	tasks, err := r.GetTasks(u, deactivated) // FIXME: maybe there is the way to do in one query? Ask A.R.
+	if err != nil {
+		return nil, err
+	}
+
+	if itemLimit == 0 {
+		return tasks, nil
+	}
+
+	var res []*domain.Task
+	for _, fetchedTask := range tasks {
+		t, err := r.client.Task.
+			Query().
+			Where(task.IDEQ(fetchedTask.ID)).
+			WithItems(func(q *ent.ItemQuery) {
+				q.Order(ent.Desc(item.FieldCreateTime))
+				q.Limit(itemLimit)
+			}).
+			Only(context.Background())
+		if err != nil {
+			return nil, err
+		}
 		var items []domain.Item
 		for _, i := range t.Edges.Items {
 			if i.Data == nil {
 				continue // items without data don't matter
 			}
 			items = append(items, domain.Item{
-				ID:     i.ID,
-				Hash:   i.Hash,
-				Source: i.Source,
-				Data:   *i.Data,
-				Task:   t.Code,
+				ID:         i.ID,
+				Hash:       i.Hash,
+				Source:     i.Source,
+				Data:       *i.Data,
+				Task:       t.Code,
+				CreateTime: i.CreateTime,
 			})
 		}
 
@@ -115,7 +146,7 @@ func (r *EntgoRepository) GetTasks(u *domain.User, itemLimit int, deactivated bo
 			Slug:        t.Slug,
 			Title:       t.Title,
 			Description: t.Description,
-			Type:        t.Edges.Type.Code,
+			Type:        fetchedTask.Type,
 			Active:      t.Active,
 			User:        u.Username,
 			Items:       items,
