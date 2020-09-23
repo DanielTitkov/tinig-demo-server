@@ -863,6 +863,34 @@ func DeleteTimeNotNil() predicate.Task {
 	})
 }
 
+// ParamsIsNil applies the IsNil predicate on the "params" field.
+func ParamsIsNil() predicate.Task {
+	return predicate.Task(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldParams)))
+	})
+}
+
+// ParamsNotNil applies the NotNil predicate on the "params" field.
+func ParamsNotNil() predicate.Task {
+	return predicate.Task(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldParams)))
+	})
+}
+
+// MetaIsNil applies the IsNil predicate on the "meta" field.
+func MetaIsNil() predicate.Task {
+	return predicate.Task(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldMeta)))
+	})
+}
+
+// MetaNotNil applies the NotNil predicate on the "meta" field.
+func MetaNotNil() predicate.Task {
+	return predicate.Task(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldMeta)))
+	})
+}
+
 // HasItems applies the HasEdge predicate on the "items" edge.
 func HasItems() predicate.Task {
 	return predicate.Task(func(s *sql.Selector) {

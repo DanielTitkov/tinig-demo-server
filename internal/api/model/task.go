@@ -8,10 +8,20 @@ import (
 
 type (
 	CreateTaskRequest struct {
-		Title       string `json:"title"`
-		Type        string `json:"type"`
-		Slug        string `json:"slug"`
-		Description string `json:"description"`
+		Title       string            `json:"title"`
+		Type        string            `json:"type"`
+		Slug        string            `json:"slug"`
+		Description string            `json:"description"`
+		Params      domain.TaskParams `json:"params"`
+		Meta        domain.TaskMeta   `json:"meta"`
+	}
+	UpdateTaskRequest struct {
+		Code        string            `json:"code"` // cannot be changed, used for task finding
+		Title       string            `json:"title"`
+		Description string            `json:"description"`
+		Active      bool              `json:"active"`
+		Params      domain.TaskParams `json:"params"`
+		Meta        domain.TaskMeta   `json:"meta"`
 	}
 	GetTasksRequest struct {
 		WithItems   bool `json:"withItems"`
@@ -28,6 +38,8 @@ type (
 		Title       string                 `json:"title"`
 		Description string                 `json:"description"`
 		Active      bool                   `json:"active"`
+		Params      domain.TaskParams      `json:"params,omitempty"`
+		Meta        domain.TaskMeta        `json:"meta,omitempty"`
 		Items       []GetTasksResponseItem `json:"items,omitempty"`
 	}
 	GetTasksResponseItem struct {

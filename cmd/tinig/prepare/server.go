@@ -14,8 +14,10 @@ func NewServer(cfg configs.Config, logger *logger.Logger, app *app.App) *echo.Ec
 
 	// Middleware
 	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
 	e.Use(middleware.CORS())
+	if cfg.Env != "dev" {
+		e.Use(middleware.Recover())
+	}
 	handler.NewHandler(e, cfg, logger, app)
 	return e
 }

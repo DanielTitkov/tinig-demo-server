@@ -18,7 +18,7 @@ func (Item) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("source").NotEmpty(),
 		field.String("hash").NotEmpty(),
-		field.JSON("data", &domain.ItemData{}).Optional(),
+		field.JSON("data", domain.ItemData{}).Optional(),
 	}
 }
 

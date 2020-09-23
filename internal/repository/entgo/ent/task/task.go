@@ -27,6 +27,10 @@ const (
 	FieldActive = "active"
 	// FieldDeleteTime holds the string denoting the delete_time field in the database.
 	FieldDeleteTime = "delete_time"
+	// FieldParams holds the string denoting the params field in the database.
+	FieldParams = "params"
+	// FieldMeta holds the string denoting the meta field in the database.
+	FieldMeta = "meta"
 
 	// EdgeItems holds the string denoting the items edge name in mutations.
 	EdgeItems = "items"
@@ -71,6 +75,8 @@ var Columns = []string{
 	FieldCode,
 	FieldActive,
 	FieldDeleteTime,
+	FieldParams,
+	FieldMeta,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the Task type.

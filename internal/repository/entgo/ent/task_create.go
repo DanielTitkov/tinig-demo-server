@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/DanielTitkov/tinig-demo-server/internal/domain"
 	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/item"
 	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/task"
 	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/tasktype"
@@ -107,6 +108,34 @@ func (tc *TaskCreate) SetDeleteTime(t time.Time) *TaskCreate {
 func (tc *TaskCreate) SetNillableDeleteTime(t *time.Time) *TaskCreate {
 	if t != nil {
 		tc.SetDeleteTime(*t)
+	}
+	return tc
+}
+
+// SetParams sets the params field.
+func (tc *TaskCreate) SetParams(dp domain.TaskParams) *TaskCreate {
+	tc.mutation.SetParams(dp)
+	return tc
+}
+
+// SetNillableParams sets the params field if the given value is not nil.
+func (tc *TaskCreate) SetNillableParams(dp *domain.TaskParams) *TaskCreate {
+	if dp != nil {
+		tc.SetParams(*dp)
+	}
+	return tc
+}
+
+// SetMeta sets the meta field.
+func (tc *TaskCreate) SetMeta(dm domain.TaskMeta) *TaskCreate {
+	tc.mutation.SetMeta(dm)
+	return tc
+}
+
+// SetNillableMeta sets the meta field if the given value is not nil.
+func (tc *TaskCreate) SetNillableMeta(dm *domain.TaskMeta) *TaskCreate {
+	if dm != nil {
+		tc.SetMeta(*dm)
 	}
 	return tc
 }
@@ -327,6 +356,22 @@ func (tc *TaskCreate) createSpec() (*Task, *sqlgraph.CreateSpec) {
 			Column: task.FieldDeleteTime,
 		})
 		t.DeleteTime = value
+	}
+	if value, ok := tc.mutation.Params(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeJSON,
+			Value:  value,
+			Column: task.FieldParams,
+		})
+		t.Params = value
+	}
+	if value, ok := tc.mutation.Meta(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeJSON,
+			Value:  value,
+			Column: task.FieldMeta,
+		})
+		t.Meta = value
 	}
 	if nodes := tc.mutation.ItemsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

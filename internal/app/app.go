@@ -20,6 +20,7 @@ type (
 
 		// tasks
 		CreateTask(*domain.Task, *domain.User, *domain.TaskType) (*domain.Task, error)
+		UpdateTask(*domain.Task) (*domain.Task, error)
 		GetTasks(u *domain.User, deactivated bool) ([]*domain.Task, error)
 		GetTasksWithItems(u *domain.User, itemLimit int, deactivated bool) ([]*domain.Task, error)
 		GetTaskByCode(code string) (*domain.Task, error)

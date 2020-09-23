@@ -1,3 +1,4 @@
+env: dev
 db:
   uri: "host=localhost port=5435 user=test dbname=tinig password=pass sslmode=disable"
   driver: postgres

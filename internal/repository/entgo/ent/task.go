@@ -3,10 +3,12 @@
 package ent
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
 
+	"github.com/DanielTitkov/tinig-demo-server/internal/domain"
 	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/task"
 	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/tasktype"
 	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent/user"
@@ -34,6 +36,10 @@ type Task struct {
 	Active bool `json:"active,omitempty"`
 	// DeleteTime holds the value of the "delete_time" field.
 	DeleteTime time.Time `json:"delete_time,omitempty"`
+	// Params holds the value of the "params" field.
+	Params domain.TaskParams `json:"params,omitempty"`
+	// Meta holds the value of the "meta" field.
+	Meta domain.TaskMeta `json:"meta,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the TaskQuery when eager-loading is set.
 	Edges           TaskEdges `json:"edges"`
@@ -103,6 +109,8 @@ func (*Task) scanValues() []interface{} {
 		&sql.NullString{}, // code
 		&sql.NullBool{},   // active
 		&sql.NullTime{},   // delete_time
+		&[]byte{},         // params
+		&[]byte{},         // meta
 	}
 }
 
@@ -166,7 +174,23 @@ func (t *Task) assignValues(values ...interface{}) error {
 	} else if value.Valid {
 		t.DeleteTime = value.Time
 	}
-	values = values[8:]
+
+	if value, ok := values[8].(*[]byte); !ok {
+		return fmt.Errorf("unexpected type %T for field params", values[8])
+	} else if value != nil && len(*value) > 0 {
+		if err := json.Unmarshal(*value, &t.Params); err != nil {
+			return fmt.Errorf("unmarshal field params: %v", err)
+		}
+	}
+
+	if value, ok := values[9].(*[]byte); !ok {
+		return fmt.Errorf("unexpected type %T for field meta", values[9])
+	} else if value != nil && len(*value) > 0 {
+		if err := json.Unmarshal(*value, &t.Meta); err != nil {
+			return fmt.Errorf("unmarshal field meta: %v", err)
+		}
+	}
+	values = values[10:]
 	if len(values) == len(task.ForeignKeys) {
 		if value, ok := values[0].(*sql.NullInt64); !ok {
 			return fmt.Errorf("unexpected type %T for edge-field task_type_tasks", value)
@@ -238,6 +262,10 @@ func (t *Task) String() string {
 	builder.WriteString(fmt.Sprintf("%v", t.Active))
 	builder.WriteString(", delete_time=")
 	builder.WriteString(t.DeleteTime.Format(time.ANSIC))
+	builder.WriteString(", params=")
+	builder.WriteString(fmt.Sprintf("%v", t.Params))
+	builder.WriteString(", meta=")
+	builder.WriteString(fmt.Sprintf("%v", t.Meta))
 	builder.WriteByte(')')
 	return builder.String()
 }

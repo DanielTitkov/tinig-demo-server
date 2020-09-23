@@ -63,8 +63,16 @@ func (ic *ItemCreate) SetHash(s string) *ItemCreate {
 }
 
 // SetData sets the data field.
-func (ic *ItemCreate) SetData(dd *domain.ItemData) *ItemCreate {
+func (ic *ItemCreate) SetData(dd domain.ItemData) *ItemCreate {
 	ic.mutation.SetData(dd)
+	return ic
+}
+
+// SetNillableData sets the data field if the given value is not nil.
+func (ic *ItemCreate) SetNillableData(dd *domain.ItemData) *ItemCreate {
+	if dd != nil {
+		ic.SetData(*dd)
+	}
 	return ic
 }
 

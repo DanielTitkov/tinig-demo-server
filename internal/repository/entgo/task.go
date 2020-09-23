@@ -19,6 +19,8 @@ func (r *EntgoRepository) CreateTask(t *domain.Task, u *domain.User, tt *domain.
 		SetCode(t.Code).
 		SetTitle(t.Title).
 		SetDescription(t.Description).
+		SetParams(t.Params).
+		SetMeta(t.Meta).
 		SetUserID(u.ID).
 		SetTypeID(tt.ID).
 		Save(context.Background())
@@ -34,6 +36,8 @@ func (r *EntgoRepository) CreateTask(t *domain.Task, u *domain.User, tt *domain.
 		Code:        t.Code,
 		Title:       t.Title,
 		Description: t.Description,
+		Params:      t.Params,
+		Meta:        t.Meta,
 	}, nil
 }
 
@@ -54,6 +58,8 @@ func (r *EntgoRepository) GetTaskByCode(code string) (*domain.Task, error) {
 		Title:       task.Title,
 		Slug:        task.Slug,
 		Description: task.Description,
+		Params:      task.Params,
+		Meta:        task.Meta,
 		User:        task.Edges.User.Username,
 		Type:        task.Edges.Type.Code,
 	}, nil
@@ -71,6 +77,40 @@ func (r *EntgoRepository) GetTaskTypeByCode(code string) (*domain.TaskType, erro
 	return &domain.TaskType{
 		ID:   taskType.ID,
 		Code: taskType.Code,
+	}, nil
+}
+
+func (r *EntgoRepository) UpdateTask(t *domain.Task) (*domain.Task, error) {
+	task, err := r.client.Task.
+		Query().
+		Where(task.CodeEQ(t.Code)).
+		Only(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	task, err = task.Update().
+		SetTitle(t.Title).
+		SetDescription(t.Description).
+		SetActive(t.Active).
+		SetParams(t.Params).
+		SetMeta(t.Meta). // TODO: maybe this should have special logic
+		Save(context.Background())
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &domain.Task{
+		ID:          task.ID,
+		Code:        task.Code,
+		Title:       task.Title,
+		Slug:        task.Slug,
+		Description: task.Description,
+		Params:      task.Params,
+		Meta:        task.Meta,
+		// User:     task.Edges.User.Username,
+		// Type:     task.Edges.Type.Code,
 	}, nil
 }
 
@@ -94,8 +134,10 @@ func (r *EntgoRepository) GetTasks(u *domain.User, deactivated bool) ([]*domain.
 			Slug:        t.Slug,
 			Title:       t.Title,
 			Description: t.Description,
-			Type:        t.Edges.Type.Code,
 			Active:      t.Active,
+			Params:      t.Params,
+			Meta:        t.Meta,
+			Type:        t.Edges.Type.Code,
 			User:        u.Username,
 		})
 	}
@@ -128,14 +170,11 @@ func (r *EntgoRepository) GetTasksWithItems(u *domain.User, itemLimit int, deact
 		}
 		var items []domain.Item
 		for _, i := range t.Edges.Items {
-			if i.Data == nil {
-				continue // items without data don't matter
-			}
 			items = append(items, domain.Item{
 				ID:         i.ID,
 				Hash:       i.Hash,
 				Source:     i.Source,
-				Data:       *i.Data,
+				Data:       i.Data,
 				Task:       t.Code,
 				CreateTime: i.CreateTime,
 			})
@@ -151,8 +190,10 @@ func (r *EntgoRepository) GetTasksWithItems(u *domain.User, itemLimit int, deact
 			Slug:        t.Slug,
 			Title:       t.Title,
 			Description: t.Description,
-			Type:        fetchedTask.Type,
 			Active:      t.Active,
+			Params:      t.Params,
+			Meta:        t.Meta,
+			Type:        fetchedTask.Type,
 			User:        u.Username,
 			Items:       items,
 		})

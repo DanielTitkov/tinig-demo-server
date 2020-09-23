@@ -11,7 +11,7 @@ func (r *EntgoRepository) CreateItem(i *domain.Item, t *domain.Task) (*domain.It
 		Create().
 		SetSource(i.Source).
 		SetHash(i.Hash).
-		SetData(&i.Data).
+		SetData(i.Data).
 		SetTaskID(t.ID).
 		Save(context.Background())
 	if err != nil {

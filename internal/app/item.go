@@ -15,6 +15,11 @@ func (a *App) CreateItem(i *domain.Item) error {
 		return err
 	}
 
+	err = a.ValidateItemData(t.Code, &i.Data)
+	if err != nil {
+		return err
+	}
+
 	dataJSON, err := json.Marshal(i.Data)
 	if err != nil {
 		return err
@@ -45,9 +50,16 @@ func (a *App) ValidateItemData(taskCode string, data *domain.ItemData) error {
 		if data.Price == 0 {
 			return errors.New("price is required for task type " + taskType)
 		}
+		if data.PriceMin == 0 {
+			return errors.New("priceMin is required for task type " + taskType)
+		}
+		if data.PriceMax == 0 {
+			return errors.New("priceMax is required for task type " + taskType)
+		}
 	default:
 		return errors.New("got unsupported task type: " + taskType)
 	}
+
 	return nil
 }
 

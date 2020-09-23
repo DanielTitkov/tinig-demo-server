@@ -45,7 +45,7 @@ type ItemMutation struct {
 	update_time   *time.Time
 	source        *string
 	hash          *string
-	data          **domain.ItemData
+	data          *domain.ItemData
 	clearedFields map[string]struct{}
 	task          *int
 	clearedtask   bool
@@ -281,12 +281,12 @@ func (m *ItemMutation) ResetHash() {
 }
 
 // SetData sets the data field.
-func (m *ItemMutation) SetData(dd *domain.ItemData) {
+func (m *ItemMutation) SetData(dd domain.ItemData) {
 	m.data = &dd
 }
 
 // Data returns the data value in the mutation.
-func (m *ItemMutation) Data() (r *domain.ItemData, exists bool) {
+func (m *ItemMutation) Data() (r domain.ItemData, exists bool) {
 	v := m.data
 	if v == nil {
 		return
@@ -298,7 +298,7 @@ func (m *ItemMutation) Data() (r *domain.ItemData, exists bool) {
 // If the Item object wasn't provided to the builder, the object is fetched
 // from the database.
 // An error is returned if the mutation operation is not UpdateOne, or database query fails.
-func (m *ItemMutation) OldData(ctx context.Context) (v *domain.ItemData, err error) {
+func (m *ItemMutation) OldData(ctx context.Context) (v domain.ItemData, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, fmt.Errorf("OldData is allowed only on UpdateOne operations")
 	}
@@ -474,7 +474,7 @@ func (m *ItemMutation) SetField(name string, value ent.Value) error {
 		m.SetHash(v)
 		return nil
 	case item.FieldData:
-		v, ok := value.(*domain.ItemData)
+		v, ok := value.(domain.ItemData)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -1389,6 +1389,8 @@ type TaskMutation struct {
 	code          *string
 	active        *bool
 	delete_time   *time.Time
+	params        *domain.TaskParams
+	meta          *domain.TaskMeta
 	clearedFields map[string]struct{}
 	items         map[int]struct{}
 	removeditems  map[int]struct{}
@@ -1801,6 +1803,106 @@ func (m *TaskMutation) ResetDeleteTime() {
 	delete(m.clearedFields, task.FieldDeleteTime)
 }
 
+// SetParams sets the params field.
+func (m *TaskMutation) SetParams(dp domain.TaskParams) {
+	m.params = &dp
+}
+
+// Params returns the params value in the mutation.
+func (m *TaskMutation) Params() (r domain.TaskParams, exists bool) {
+	v := m.params
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldParams returns the old params value of the Task.
+// If the Task object wasn't provided to the builder, the object is fetched
+// from the database.
+// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+func (m *TaskMutation) OldParams(ctx context.Context) (v domain.TaskParams, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldParams is allowed only on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldParams requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldParams: %w", err)
+	}
+	return oldValue.Params, nil
+}
+
+// ClearParams clears the value of params.
+func (m *TaskMutation) ClearParams() {
+	m.params = nil
+	m.clearedFields[task.FieldParams] = struct{}{}
+}
+
+// ParamsCleared returns if the field params was cleared in this mutation.
+func (m *TaskMutation) ParamsCleared() bool {
+	_, ok := m.clearedFields[task.FieldParams]
+	return ok
+}
+
+// ResetParams reset all changes of the "params" field.
+func (m *TaskMutation) ResetParams() {
+	m.params = nil
+	delete(m.clearedFields, task.FieldParams)
+}
+
+// SetMeta sets the meta field.
+func (m *TaskMutation) SetMeta(dm domain.TaskMeta) {
+	m.meta = &dm
+}
+
+// Meta returns the meta value in the mutation.
+func (m *TaskMutation) Meta() (r domain.TaskMeta, exists bool) {
+	v := m.meta
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMeta returns the old meta value of the Task.
+// If the Task object wasn't provided to the builder, the object is fetched
+// from the database.
+// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+func (m *TaskMutation) OldMeta(ctx context.Context) (v domain.TaskMeta, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldMeta is allowed only on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldMeta requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMeta: %w", err)
+	}
+	return oldValue.Meta, nil
+}
+
+// ClearMeta clears the value of meta.
+func (m *TaskMutation) ClearMeta() {
+	m.meta = nil
+	m.clearedFields[task.FieldMeta] = struct{}{}
+}
+
+// MetaCleared returns if the field meta was cleared in this mutation.
+func (m *TaskMutation) MetaCleared() bool {
+	_, ok := m.clearedFields[task.FieldMeta]
+	return ok
+}
+
+// ResetMeta reset all changes of the "meta" field.
+func (m *TaskMutation) ResetMeta() {
+	m.meta = nil
+	delete(m.clearedFields, task.FieldMeta)
+}
+
 // AddItemIDs adds the items edge to Item by ids.
 func (m *TaskMutation) AddItemIDs(ids ...int) {
 	if m.items == nil {
@@ -1935,7 +2037,7 @@ func (m *TaskMutation) Type() string {
 // this mutation. Note that, in order to get all numeric
 // fields that were in/decremented, call AddedFields().
 func (m *TaskMutation) Fields() []string {
-	fields := make([]string, 0, 8)
+	fields := make([]string, 0, 10)
 	if m.create_time != nil {
 		fields = append(fields, task.FieldCreateTime)
 	}
@@ -1959,6 +2061,12 @@ func (m *TaskMutation) Fields() []string {
 	}
 	if m.delete_time != nil {
 		fields = append(fields, task.FieldDeleteTime)
+	}
+	if m.params != nil {
+		fields = append(fields, task.FieldParams)
+	}
+	if m.meta != nil {
+		fields = append(fields, task.FieldMeta)
 	}
 	return fields
 }
@@ -1984,6 +2092,10 @@ func (m *TaskMutation) Field(name string) (ent.Value, bool) {
 		return m.Active()
 	case task.FieldDeleteTime:
 		return m.DeleteTime()
+	case task.FieldParams:
+		return m.Params()
+	case task.FieldMeta:
+		return m.Meta()
 	}
 	return nil, false
 }
@@ -2009,6 +2121,10 @@ func (m *TaskMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldActive(ctx)
 	case task.FieldDeleteTime:
 		return m.OldDeleteTime(ctx)
+	case task.FieldParams:
+		return m.OldParams(ctx)
+	case task.FieldMeta:
+		return m.OldMeta(ctx)
 	}
 	return nil, fmt.Errorf("unknown Task field %s", name)
 }
@@ -2074,6 +2190,20 @@ func (m *TaskMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetDeleteTime(v)
 		return nil
+	case task.FieldParams:
+		v, ok := value.(domain.TaskParams)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetParams(v)
+		return nil
+	case task.FieldMeta:
+		v, ok := value.(domain.TaskMeta)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMeta(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Task field %s", name)
 }
@@ -2110,6 +2240,12 @@ func (m *TaskMutation) ClearedFields() []string {
 	if m.FieldCleared(task.FieldDeleteTime) {
 		fields = append(fields, task.FieldDeleteTime)
 	}
+	if m.FieldCleared(task.FieldParams) {
+		fields = append(fields, task.FieldParams)
+	}
+	if m.FieldCleared(task.FieldMeta) {
+		fields = append(fields, task.FieldMeta)
+	}
 	return fields
 }
 
@@ -2129,6 +2265,12 @@ func (m *TaskMutation) ClearField(name string) error {
 		return nil
 	case task.FieldDeleteTime:
 		m.ClearDeleteTime()
+		return nil
+	case task.FieldParams:
+		m.ClearParams()
+		return nil
+	case task.FieldMeta:
+		m.ClearMeta()
 		return nil
 	}
 	return fmt.Errorf("unknown Task nullable field %s", name)
@@ -2162,6 +2304,12 @@ func (m *TaskMutation) ResetField(name string) error {
 		return nil
 	case task.FieldDeleteTime:
 		m.ResetDeleteTime()
+		return nil
+	case task.FieldParams:
+		m.ResetParams()
+		return nil
+	case task.FieldMeta:
+		m.ResetMeta()
 		return nil
 	}
 	return fmt.Errorf("unknown Task field %s", name)

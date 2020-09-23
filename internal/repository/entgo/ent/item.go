@@ -28,7 +28,7 @@ type Item struct {
 	// Hash holds the value of the "hash" field.
 	Hash string `json:"hash,omitempty"`
 	// Data holds the value of the "data" field.
-	Data *domain.ItemData `json:"data,omitempty"`
+	Data domain.ItemData `json:"data,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ItemQuery when eager-loading is set.
 	Edges      ItemEdges `json:"edges"`

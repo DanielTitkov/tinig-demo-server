@@ -14,15 +14,7 @@ func (h *Handler) CreateItemHandler(c echo.Context) error {
 		return err
 	}
 
-	err := h.app.ValidateItemData(request.Task, &request.Data)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, model.ErrorResponse{
-			Message: "item data is invalid for the given task type",
-			Error:   err.Error(),
-		})
-	}
-
-	err = h.app.CreateItem(&domain.Item{
+	err := h.app.CreateItem(&domain.Item{
 		Task:   request.Task,
 		Source: request.Source,
 		Data:   request.Data,

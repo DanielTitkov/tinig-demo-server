@@ -43,8 +43,16 @@ func (iu *ItemUpdate) SetHash(s string) *ItemUpdate {
 }
 
 // SetData sets the data field.
-func (iu *ItemUpdate) SetData(dd *domain.ItemData) *ItemUpdate {
+func (iu *ItemUpdate) SetData(dd domain.ItemData) *ItemUpdate {
 	iu.mutation.SetData(dd)
+	return iu
+}
+
+// SetNillableData sets the data field if the given value is not nil.
+func (iu *ItemUpdate) SetNillableData(dd *domain.ItemData) *ItemUpdate {
+	if dd != nil {
+		iu.SetData(*dd)
+	}
 	return iu
 }
 
@@ -263,8 +271,16 @@ func (iuo *ItemUpdateOne) SetHash(s string) *ItemUpdateOne {
 }
 
 // SetData sets the data field.
-func (iuo *ItemUpdateOne) SetData(dd *domain.ItemData) *ItemUpdateOne {
+func (iuo *ItemUpdateOne) SetData(dd domain.ItemData) *ItemUpdateOne {
 	iuo.mutation.SetData(dd)
+	return iuo
+}
+
+// SetNillableData sets the data field if the given value is not nil.
+func (iuo *ItemUpdateOne) SetNillableData(dd *domain.ItemData) *ItemUpdateOne {
+	if dd != nil {
+		iuo.SetData(*dd)
+	}
 	return iuo
 }
 

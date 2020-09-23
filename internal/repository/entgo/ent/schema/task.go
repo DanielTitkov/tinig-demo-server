@@ -3,6 +3,7 @@ package schema
 import (
 	"regexp"
 
+	"github.com/DanielTitkov/tinig-demo-server/internal/domain"
 	"github.com/facebook/ent"
 	"github.com/facebook/ent/schema/edge"
 	"github.com/facebook/ent/schema/field"
@@ -24,6 +25,8 @@ func (Task) Fields() []ent.Field {
 		field.String("code").NotEmpty().Unique().Immutable(),
 		field.Bool("active").Default(false),
 		field.Time("delete_time").Optional(),
+		field.JSON("params", domain.TaskParams{}).Optional(),
+		field.JSON("meta", domain.TaskMeta{}).Optional(),
 	}
 }
 
