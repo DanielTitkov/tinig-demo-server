@@ -99,26 +99,6 @@ func (tu *TaskUpdate) ClearDeleteTime() *TaskUpdate {
 	return tu
 }
 
-// SetParams sets the params field.
-func (tu *TaskUpdate) SetParams(dp domain.TaskParams) *TaskUpdate {
-	tu.mutation.SetParams(dp)
-	return tu
-}
-
-// SetNillableParams sets the params field if the given value is not nil.
-func (tu *TaskUpdate) SetNillableParams(dp *domain.TaskParams) *TaskUpdate {
-	if dp != nil {
-		tu.SetParams(*dp)
-	}
-	return tu
-}
-
-// ClearParams clears the value of params.
-func (tu *TaskUpdate) ClearParams() *TaskUpdate {
-	tu.mutation.ClearParams()
-	return tu
-}
-
 // SetMeta sets the meta field.
 func (tu *TaskUpdate) SetMeta(dm domain.TaskMeta) *TaskUpdate {
 	tu.mutation.SetMeta(dm)
@@ -353,13 +333,6 @@ func (tu *TaskUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: task.FieldDeleteTime,
 		})
 	}
-	if value, ok := tu.mutation.Params(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeJSON,
-			Value:  value,
-			Column: task.FieldParams,
-		})
-	}
 	if tu.mutation.ParamsCleared() {
 		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
 			Type:   field.TypeJSON,
@@ -568,26 +541,6 @@ func (tuo *TaskUpdateOne) SetNillableDeleteTime(t *time.Time) *TaskUpdateOne {
 // ClearDeleteTime clears the value of delete_time.
 func (tuo *TaskUpdateOne) ClearDeleteTime() *TaskUpdateOne {
 	tuo.mutation.ClearDeleteTime()
-	return tuo
-}
-
-// SetParams sets the params field.
-func (tuo *TaskUpdateOne) SetParams(dp domain.TaskParams) *TaskUpdateOne {
-	tuo.mutation.SetParams(dp)
-	return tuo
-}
-
-// SetNillableParams sets the params field if the given value is not nil.
-func (tuo *TaskUpdateOne) SetNillableParams(dp *domain.TaskParams) *TaskUpdateOne {
-	if dp != nil {
-		tuo.SetParams(*dp)
-	}
-	return tuo
-}
-
-// ClearParams clears the value of params.
-func (tuo *TaskUpdateOne) ClearParams() *TaskUpdateOne {
-	tuo.mutation.ClearParams()
 	return tuo
 }
 
@@ -821,13 +774,6 @@ func (tuo *TaskUpdateOne) sqlSave(ctx context.Context) (t *Task, err error) {
 		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
 			Type:   field.TypeTime,
 			Column: task.FieldDeleteTime,
-		})
-	}
-	if value, ok := tuo.mutation.Params(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeJSON,
-			Value:  value,
-			Column: task.FieldParams,
 		})
 	}
 	if tuo.mutation.ParamsCleared() {

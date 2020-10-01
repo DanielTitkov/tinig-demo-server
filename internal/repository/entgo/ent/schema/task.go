@@ -25,7 +25,7 @@ func (Task) Fields() []ent.Field {
 		field.String("code").NotEmpty().Unique().Immutable(),
 		field.Bool("active").Default(false),
 		field.Time("delete_time").Optional(),
-		field.JSON("params", domain.TaskParams{}).Optional(),
+		field.JSON("params", domain.TaskParams{}).Optional().Immutable(),
 		field.JSON("meta", domain.TaskMeta{}).Optional(),
 	}
 }

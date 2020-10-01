@@ -20,7 +20,7 @@ type (
 		Title       string            `json:"title"`
 		Description string            `json:"description"`
 		Active      bool              `json:"active"`
-		Params      domain.TaskParams `json:"params"`
+		Params      domain.TaskParams `json:"params"` // params are immutable, will be depracated
 		Meta        domain.TaskMeta   `json:"meta"`
 	}
 	GetTasksRequest struct {

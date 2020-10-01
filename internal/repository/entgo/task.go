@@ -93,7 +93,6 @@ func (r *EntgoRepository) UpdateTask(t *domain.Task) (*domain.Task, error) {
 		SetTitle(t.Title).
 		SetDescription(t.Description).
 		SetActive(t.Active).
-		SetParams(t.Params).
 		SetMeta(t.Meta). // TODO: maybe this should have special logic
 		Save(context.Background())
 

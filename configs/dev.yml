@@ -6,7 +6,7 @@ server:
   port: 8000
   host: "0.0.0.0"
 auth:
-  exp: 72 # hours
+  exp: 72000 # hours
   secret: secret-key
 task:
   itemLimit: 10

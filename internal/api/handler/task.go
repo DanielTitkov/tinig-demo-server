@@ -65,7 +65,7 @@ func (h *Handler) UpdateTaskHandler(c echo.Context) error {
 		Active:      request.Active,
 		Title:       request.Title,
 		Description: request.Description,
-		Params:      request.Params,
+		Params:      request.Params, // params are immutable
 		Meta:        request.Meta,
 	})
 	if err != nil {
