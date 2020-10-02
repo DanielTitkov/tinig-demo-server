@@ -89,7 +89,7 @@ func (a *App) ValidateTaskUser(t *domain.Task) error {
 
 func (a *App) ValidateTaskParams(t *domain.Task) error {
 	var taskType string
-	if t.Type == "" {
+	if t.Type == "" { // if task is being updated
 		task, err := a.repo.GetTaskByCode(t.Code)
 		if err != nil {
 			return err

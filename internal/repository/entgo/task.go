@@ -120,6 +120,7 @@ func (r *EntgoRepository) GetTasks(u *domain.User, deactivated bool) ([]*domain.
 		QueryTasks().
 		Where(task.ActiveEQ(!deactivated)).
 		WithType().
+		Order(ent.Desc(task.FieldUpdateTime)).
 		All(context.Background())
 	if err != nil {
 		return nil, err
