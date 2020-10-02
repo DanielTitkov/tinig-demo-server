@@ -20,6 +20,11 @@ func (a *App) CreateTask(t *domain.Task) error {
 		return err
 	}
 
+	err = a.ValidateTaskParams(t)
+	if err != nil {
+		return err
+	}
+
 	ts := strconv.FormatInt(time.Now().Unix(), 10)
 	code := strings.Join([]string{t.User, t.Type, t.Slug, ts}, "_")
 	t.Code = code
@@ -83,12 +88,17 @@ func (a *App) ValidateTaskUser(t *domain.Task) error {
 }
 
 func (a *App) ValidateTaskParams(t *domain.Task) error {
-	task, err := a.repo.GetTaskByCode(t.Code)
-	if err != nil {
-		return err
+	var taskType string
+	if t.Type == "" {
+		task, err := a.repo.GetTaskByCode(t.Code)
+		if err != nil {
+			return err
+		}
+		taskType = task.Type
+	} else {
+		taskType = t.Type
 	}
 
-	taskType := task.Type
 	params := t.Params
 	switch taskType {
 	case domain.TaskTypeRandom: // TODO: move params to config
