@@ -2,11 +2,11 @@ package main
 
 import (
 	"context"
-	"time"
 
 	"github.com/DanielTitkov/tinig-demo-server/cmd/tinig/prepare"
 	"github.com/DanielTitkov/tinig-demo-server/internal/app"
 	"github.com/DanielTitkov/tinig-demo-server/internal/configs"
+	"github.com/DanielTitkov/tinig-demo-server/internal/job"
 	"github.com/DanielTitkov/tinig-demo-server/internal/logger"
 	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo"
 	"github.com/DanielTitkov/tinig-demo-server/internal/repository/entgo/ent"
@@ -42,13 +42,8 @@ func main() {
 
 	app := app.NewApp(cfg, logger, repo)
 
-	go func() {
-		for {
-			app.CreateSystemSummary()
-			time.Sleep(5 * time.Minute)
-			logger.Info("calculated system summary", "")
-		}
-	}()
+	jobs := job.NewService(cfg, logger, app)
+	jobs.GatherSystemSummary() // TODO: maybe hide it inside jobs
 
 	server := prepare.NewServer(cfg, logger, app)
 	logger.Fatal("failed to start server", server.Start(cfg.Server.GetAddress()))

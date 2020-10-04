@@ -12,6 +12,7 @@ type Config struct {
 	DB     DBConfig
 	Server ServerConfig
 	Task   TaskConfig
+	Job    JobConfig
 }
 
 func ReadConfigs(path string) (Config, error) {

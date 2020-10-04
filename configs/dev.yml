@@ -10,3 +10,5 @@ auth:
   secret: secret-key
 task:
   itemLimit: 10
+job: 
+  systemSummaryPeriod: 1800 # seconds
