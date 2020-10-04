@@ -118,6 +118,7 @@ func (r *EntgoRepository) GetTasks(u *domain.User) ([]*domain.Task, error) {
 		Query().
 		Where(user.UsernameEQ(u.Username)).
 		QueryTasks().
+		Where(task.DeleteTimeIsNil()).
 		WithType().
 		Order(ent.Desc(task.FieldUpdateTime)).
 		All(context.Background())
