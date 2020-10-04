@@ -16,16 +16,14 @@ type (
 		Meta        domain.TaskMeta   `json:"meta"`
 	}
 	UpdateTaskRequest struct {
-		Code        string            `json:"code"` // cannot be changed, used for task finding
-		Title       string            `json:"title"`
-		Description string            `json:"description"`
-		Active      bool              `json:"active"`
-		Params      domain.TaskParams `json:"params"` // params are immutable, will be depracated
-		Meta        domain.TaskMeta   `json:"meta"`
+		Code        string          `json:"code"` // cannot be changed, used for task finding
+		Title       string          `json:"title"`
+		Description string          `json:"description"`
+		Active      bool            `json:"active"`
+		Meta        domain.TaskMeta `json:"meta"`
 	}
 	GetTasksRequest struct {
-		WithItems   bool `json:"withItems"`
-		Deactivated bool `json:"deactivated"`
+		WithItems bool `json:"withItems"`
 	}
 	GetTasksResponse struct {
 		Tasks []GetTasksResponseTask `json:"tasks"`

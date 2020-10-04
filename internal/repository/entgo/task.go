@@ -113,12 +113,11 @@ func (r *EntgoRepository) UpdateTask(t *domain.Task) (*domain.Task, error) {
 	}, nil
 }
 
-func (r *EntgoRepository) GetTasks(u *domain.User, deactivated bool) ([]*domain.Task, error) {
+func (r *EntgoRepository) GetTasks(u *domain.User) ([]*domain.Task, error) {
 	tasks, err := r.client.User.
 		Query().
 		Where(user.UsernameEQ(u.Username)).
 		QueryTasks().
-		Where(task.ActiveEQ(!deactivated)).
 		WithType().
 		Order(ent.Desc(task.FieldUpdateTime)).
 		All(context.Background())
@@ -145,8 +144,8 @@ func (r *EntgoRepository) GetTasks(u *domain.User, deactivated bool) ([]*domain.
 	return res, nil
 }
 
-func (r *EntgoRepository) GetTasksWithItems(u *domain.User, itemLimit int, deactivated bool) ([]*domain.Task, error) {
-	tasks, err := r.GetTasks(u, deactivated) // FIXME: maybe there is the way to do in one query? Ask A.R.
+func (r *EntgoRepository) GetTasksWithItems(u *domain.User, itemLimit int) ([]*domain.Task, error) {
+	tasks, err := r.GetTasks(u) // FIXME: maybe there is the way to do in one query? Ask A.R.
 	if err != nil {
 		return nil, err
 	}

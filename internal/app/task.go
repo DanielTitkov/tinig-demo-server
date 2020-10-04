@@ -36,7 +36,7 @@ func (a *App) CreateTask(t *domain.Task) error {
 	return nil
 }
 
-func (a *App) GetTasks(u *domain.User, withItems bool, deactivated bool) ([]*domain.Task, error) {
+func (a *App) GetTasks(u *domain.User, withItems bool) ([]*domain.Task, error) {
 	u, err := a.repo.GetUserByUsername(u.Username)
 	if err != nil {
 		return nil, err
@@ -47,7 +47,7 @@ func (a *App) GetTasks(u *domain.User, withItems bool, deactivated bool) ([]*dom
 		itemLimit = a.cfg.Task.ItemLimit
 	}
 
-	return a.repo.GetTasksWithItems(u, itemLimit, deactivated)
+	return a.repo.GetTasksWithItems(u, itemLimit)
 }
 
 func (a *App) UpdateTask(t *domain.Task) error {

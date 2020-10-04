@@ -60,12 +60,11 @@ func (h *Handler) UpdateTaskHandler(c echo.Context) error {
 	}
 
 	err = h.app.UpdateTask(&domain.Task{
-		User:        username,
-		Code:        request.Code,
+		User:        username,     // immutable
+		Code:        request.Code, // immutable
 		Active:      request.Active,
 		Title:       request.Title,
 		Description: request.Description,
-		Params:      request.Params, // params are immutable
 		Meta:        request.Meta,
 	})
 	if err != nil {
@@ -95,7 +94,7 @@ func (h *Handler) GetTasksHandler(c echo.Context) error {
 		})
 	}
 
-	tasks, err := h.app.GetTasks(&domain.User{Username: username}, request.WithItems, request.Deactivated)
+	tasks, err := h.app.GetTasks(&domain.User{Username: username}, request.WithItems)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, model.ErrorResponse{
 			Message: "failed to get user tasks",
