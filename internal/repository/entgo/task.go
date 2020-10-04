@@ -89,11 +89,23 @@ func (r *EntgoRepository) UpdateTask(t *domain.Task) (*domain.Task, error) {
 		return nil, err
 	}
 
+	title := task.Title
+	if t.Title != "" {
+		title = t.Title
+	}
+
+	description := task.Description
+	if t.Description != "" {
+		description = t.Description
+	}
+
+	// TODO: maybe create separate methods for different fields
+
 	task, err = task.Update().
-		SetTitle(t.Title).
-		SetDescription(t.Description).
-		SetActive(t.Active).
-		SetMeta(t.Meta). // TODO: maybe this should have special logic
+		SetTitle(title).
+		SetDescription(description).
+		SetActive(t.Active). // required
+		SetMeta(t.Meta).     // TODO: maybe this should have special logic
 		Save(context.Background())
 
 	if err != nil {

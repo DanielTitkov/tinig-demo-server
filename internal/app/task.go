@@ -56,11 +56,6 @@ func (a *App) UpdateTask(t *domain.Task) error {
 		return err
 	}
 
-	err = a.ValidateTaskParams(t)
-	if err != nil {
-		return err
-	}
-
 	_, err = a.repo.UpdateTask(t)
 	if err != nil {
 		return err
